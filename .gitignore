@@ -1,0 +1,15 @@
+# brainstorming companion
+.superpowers/
+
+# dados baixados e planilhas geradas: contêm nomes de pessoas físicas, nunca versionar
+dados/
+saida/
+
+# python
+__pycache__/
+*.pyc
+.venv/
+.pytest_cache/
+
+# macOS
+.DS_Store
