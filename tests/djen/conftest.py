@@ -41,3 +41,36 @@ def item():
 @pytest.fixture
 def fazer_zip():
     return _fazer_zip
+
+
+class ClienteFalso:
+    def __init__(
+        self,
+        metadados: dict[str, dict | None],
+        arquivos: dict[str, bytes],
+        falhas: dict[str, int] | None = None,
+    ):
+        self.metadados = metadados
+        self.arquivos = arquivos
+        self.falhas = dict(falhas or {})
+        self.chamadas_get: list[str] = []
+        self.chamadas_baixar: list[str] = []
+
+    def get_json(self, url: str) -> dict:
+        from guicredito.djen.fonte import HttpErro
+
+        self.chamadas_get.append(url)
+        if url not in self.metadados or self.metadados[url] is None:
+            raise HttpErro(404)
+        return self.metadados[url]
+
+    def baixar(self, url: str, destino: Path) -> None:
+        from guicredito.djen.fonte import HttpErro
+
+        self.chamadas_baixar.append(url)
+        if self.falhas.get(url, 0) > 0:
+            self.falhas[url] -= 1
+            raise HttpErro(403)
+        if url not in self.arquivos or self.arquivos[url] is None:
+            raise HttpErro(404)
+        destino.write_bytes(self.arquivos[url])
