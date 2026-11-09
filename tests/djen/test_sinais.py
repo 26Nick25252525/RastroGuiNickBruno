@@ -19,6 +19,39 @@ PADRAO_3 = (
     "Censec , SPCjud, ONR , Sniper, entre outras) , salvo se beneficiário da justiça gratuita , na quantia abaixo "
     "indicada ( com base na UFESP atualmente vigente ) , para cada pesquisa em cada pessoa/ CPF-CNPJ :"
 )
+PADRAO_4 = (
+    "O bloqueio não incidirá sobre valores impenhoráveis referentes a salários ou subsídios, "
+    "vencimentos, pensões e aposentadorias (art. 833 do Código de Processo Civil)."
+)
+PADRAO_5 = (
+    "Sem prejuízo das determinações anteriores, autorizo, desde já, o acesso aos sistemas RENAJUD e "
+    "INFOJUD, caso requerido e mediante o recolhimento das custas, exceto para os beneficiários da "
+    "gratuidade da justiça, juntando-se as minutas aos autos."
+)
+PADRAO_6 = (
+    "Ciência à parte interessada acerca da resposta da ordem pelo Sistema SisbaJud - Bloqueio negativo "
+    "ou valores irrisórios desbloqueados - devendo a parte interessada requerer o que de direito, em "
+    "5 (cinco) dias, sob pena de arquivamento do feito."
+)
+PADRAO_7 = (
+    "Caso o executado não possua advogados constituídos, caberá ao exequente providenciar o "
+    "recolhimento da taxa postal ou guia de condução do Oficial de Justiça para proceder a intimação "
+    "pessoal do executado, acaso não seja beneficiário da justiça gratuita, no prazo de cinco dias, "
+    "sob pena de arquivamento do feito e desbloqueio dos valores."
+)
+PADRAO_8 = (
+    "INTIME-SE a parte executada, pelo DJE (na pessoa de seu advogado constituído nos autos) ou por "
+    "carta, com aviso de recebimento (quando representado pela Defensoria Pública ou não tiver "
+    "procurador constituído nos autos) ou por edital (se citado fictamente) para, no prazo de 05 "
+    "(cinco) dias, questionar essa medida, ficando o executado advertido ainda que, não apresentada "
+    "manifestação no prazo indicado, converter-se-á a indisponibilidade em penhora, sem necessidade de "
+    "lavratura de termo, iniciando-se automaticamente, a partir do sexto (6º) dia, o prazo legal de "
+    "15 (quinze) dias para apresentação de impugnação, independentemente de nova intimação."
+)
+PADRAO_9 = (
+    "FULANO EXEMPLO: juntar aos autos o ofício com registro geral de indicação da defensoria "
+    "OAB/SP para expedição da certidão de honorários."
+)
 
 D = Bloco.DESGASTE
 P = Bloco.PATRIMONIO
@@ -131,8 +164,20 @@ NAO_DETECTAR = [
 ]
 
 
-def test_texto_padrao_nao_gera_sinal():
-    assert detectar_sinais(" ".join([PADRAO_1, PADRAO_2, PADRAO_3])) == ()
+@pytest.mark.parametrize(
+    "frase",
+    [
+        " ".join([PADRAO_1, PADRAO_2, PADRAO_3]),
+        PADRAO_4,
+        PADRAO_5,
+        PADRAO_6,
+        PADRAO_7,
+        PADRAO_8,
+        PADRAO_9,
+    ],
+)
+def test_texto_padrao_nao_gera_sinal(frase):
+    assert detectar_sinais(frase) == ()
 
 
 @pytest.mark.parametrize("chave,bloco,pontos,rotulo,frase", DETECTAR)

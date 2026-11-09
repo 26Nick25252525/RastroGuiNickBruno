@@ -7,6 +7,12 @@ PADROES: list[re.Pattern[str]] = [
     re.compile(r"salvo se (a parte for )?beneficiari.*justica gratuita"),
     re.compile(r"no silencio.*arquivo provisorio"),
     re.compile(r"para viabilizar a realizacao da\(s\) pesquisa"),
+    re.compile(r"bloqueio nao incidira sobre valores impenhoraveis"),
+    re.compile(r"autorizo, desde ja, o acesso aos sistemas renajud"),
+    re.compile(r"ciencia a parte interessada acerca da resposta da ordem pelo sistema sisbajud"),
+    re.compile(r"acaso nao seja beneficiario da justica gratuita"),
+    re.compile(r"quando representado pela defensoria publica ou nao tiver procurador"),
+    re.compile(r"registro geral de indicacao da defensoria"),
 ]
 
 CATALOGO: list[tuple[str, Bloco, int, str, re.Pattern[str]]] = [
