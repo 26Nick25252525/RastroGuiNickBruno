@@ -1,0 +1,8 @@
+pyproject.toml
+src/guicredito/__init__.py
+src/guicredito.egg-info/PKG-INFO
+src/guicredito.egg-info/SOURCES.txt
+src/guicredito.egg-info/dependency_links.txt
+src/guicredito.egg-info/requires.txt
+src/guicredito.egg-info/top_level.txt
+src/guicredito/djen/__init__.py
