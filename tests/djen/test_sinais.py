@@ -1,0 +1,163 @@
+import pytest
+
+from guicredito.djen.modelos import Bloco
+from guicredito.djen.sinais import detectar_sinais
+
+PADRAO_1 = (
+    "Caso seja fornecido novo endereço para a citação, com a manifestação deverá ser providenciado o "
+    "recolhimento das custas respectivas - salvo se a parte for beneficiária da justiça gratuita - e o "
+    'peticionamento eletrônico deverá observar o evento/tipo de documento "Pedido de citação em novo endereço".'
+)
+PADRAO_2 = (
+    "No silêncio , será aplicado o disposto no artigo 485, § 1º, do Código de Processo Civil ou os autos "
+    "serão remetidos ao arquivo provisório, conforme o caso."
+)
+PADRAO_3 = (
+    "Para viabilizar a realização da(s) pesquisa(s) eletrônica(s) requerida(s), deverá a parte interessada "
+    "providenciar o(a): 1) recolhimento do valor ou, se o caso, a complementação correspondente à(s) pesquisa(s) "
+    "eletrônica(s) pleiteada(s) ( Sisbajud, Renajud , Infojud , Serasajud , Comgasjud , Infoseg , Siel, CRCjud , "
+    "Censec , SPCjud, ONR , Sniper, entre outras) , salvo se beneficiário da justiça gratuita , na quantia abaixo "
+    "indicada ( com base na UFESP atualmente vigente ) , para cada pesquisa em cada pessoa/ CPF-CNPJ :"
+)
+
+D = Bloco.DESGASTE
+P = Bloco.PATRIMONIO
+V = Bloco.VULNERABILIDADE
+X = Bloco.DESCONTO
+A = Bloco.ALERTA
+
+DETECTAR = [
+    ("bloqueio_negativo", D, 10, "bloqueio infrutífero", "A pesquisa via SISBAJUD restou infrutífera."),
+    ("bloqueio_negativo", D, 10, "bloqueio infrutífero", "O bloqueio de ativos financeiros resultou negativo."),
+    ("acordo_frustrado", D, 10, "acordo frustrado", "A audiência de conciliação restou infrutífera."),
+    ("acordo_frustrado", D, 10, "acordo frustrado", "Não houve acordo entre as partes."),
+    ("arquivamento_provisorio", D, 8, "arquivamento provisório", "Remetam-se os autos ao arquivo provisório."),
+    (
+        "leilao_negativo",
+        P,
+        20,
+        "leilão negativo",
+        "O leilão do imóvel restou negativo, por ausência de licitantes.",
+    ),
+    (
+        "imovel_penhorado",
+        P,
+        15,
+        "imóvel penhorado/avaliado",
+        "Lavre-se o termo de penhora do imóvel de matrícula nº 12.345.",
+    ),
+    ("imovel_penhorado", P, 15, "imóvel penhorado/avaliado", "Juntado o laudo de avaliação do imóvel."),
+    ("bem_de_familia", P, 12, "bem de família", "Alega a executada tratar-se de bem de família."),
+    ("penhora", P, 6, "penhora", "Defiro a penhora on-line."),
+    ("veiculo", P, 4, "veículo", "Restrição via RENAJUD sobre o veículo."),
+    (
+        "superendividamento",
+        V,
+        15,
+        "superendividamento",
+        "Repactuação com base na Lei 14.181/2021 (superendividamento).",
+    ),
+    (
+        "gratuidade_devedor",
+        V,
+        8,
+        "justiça gratuita (devedor)",
+        "Defiro ao executado os benefícios da justiça gratuita.",
+    ),
+    ("defensoria", V, 8, "Defensoria Pública", "O executado é assistido pela Defensoria Pública."),
+    (
+        "idoso",
+        V,
+        8,
+        "idoso(a)",
+        "Anote-se a prioridade de tramitação, por ser a executada pessoa idosa.",
+    ),
+    (
+        "salario_impenhoravel",
+        V,
+        6,
+        "salário/aposentadoria impenhorável",
+        "Os valores bloqueados são proventos de aposentadoria, impenhoráveis nos termos do art. 833, IV, do CPC.",
+    ),
+    ("sem_bens", X, -10, "⚠ sem bens localizados", "Não foram localizados bens penhoráveis."),
+    (
+        "sem_bens",
+        X,
+        -10,
+        "⚠ sem bens localizados",
+        "Suspendo a execução nos termos do art. 921, III, do CPC.",
+    ),
+    (
+        "prescricao_intercorrente",
+        X,
+        -10,
+        "⚠ prescrição intercorrente",
+        "Manifeste-se o exequente sobre a prescrição intercorrente.",
+    ),
+    (
+        "devedor_nao_localizado",
+        A,
+        0,
+        "⚠ devedor não localizado",
+        "Juntada de Carta pelo Correio - devolvida sem cumprimento",
+    ),
+    (
+        "devedor_nao_localizado",
+        A,
+        0,
+        "⚠ devedor não localizado",
+        "O executado não foi localizado no endereço indicado.",
+    ),
+    (
+        "devedor_nao_localizado",
+        A,
+        0,
+        "⚠ devedor não localizado",
+        "Manifeste-se sobre a citação negativa.",
+    ),
+]
+
+NAO_DETECTAR = [
+    ("bloqueio_negativo", "Defiro a pesquisa via Sisbajud."),
+    ("acordo_frustrado", "Designo audiência de conciliação."),
+    ("arquivamento_provisorio", PADRAO_2),
+    ("leilao_negativo", "Nomeio leiloeiro oficial."),
+    ("imovel_penhorado", "Indique o exequente bens à penhora."),
+    ("veiculo", PADRAO_3),
+    ("gratuidade_devedor", "Defiro ao exequente os benefícios da justiça gratuita."),
+    ("gratuidade_devedor", PADRAO_1),
+    ("salario_impenhoravel", "Comprove o executado a impenhorabilidade."),
+    ("sem_bens", "Suspendo o processo por 30 dias."),
+]
+
+
+def test_texto_padrao_nao_gera_sinal():
+    assert detectar_sinais(" ".join([PADRAO_1, PADRAO_2, PADRAO_3])) == ()
+
+
+@pytest.mark.parametrize("chave,bloco,pontos,rotulo,frase", DETECTAR)
+def test_sinal_detectado(chave, bloco, pontos, rotulo, frase):
+    sinais = {s.chave: s for s in detectar_sinais(frase)}
+    assert chave in sinais
+    sinal = sinais[chave]
+    assert sinal.bloco is bloco
+    assert sinal.pontos == pontos
+    assert sinal.rotulo == rotulo
+
+
+@pytest.mark.parametrize("chave,frase", NAO_DETECTAR)
+def test_sinal_nao_detectado(chave, frase):
+    assert chave not in {s.chave for s in detectar_sinais(frase)}
+
+
+def test_um_sinal_por_chave():
+    texto = "Defiro a penhora on-line. Mantenho a penhora já realizada."
+    penhoras = [s for s in detectar_sinais(texto) if s.chave == "penhora"]
+    assert len(penhoras) == 1
+    assert penhoras[0].trecho == "Defiro a penhora on-line."
+
+
+def test_trecho_e_a_frase_original():
+    frase = "Alega a executada tratar-se de bem de família."
+    sinais = {s.chave: s for s in detectar_sinais(frase)}
+    assert sinais["bem_de_familia"].trecho == frase
