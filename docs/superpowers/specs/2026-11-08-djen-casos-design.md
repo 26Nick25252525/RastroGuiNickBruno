@@ -94,10 +94,11 @@ A resposta tem este formato (exemplo real, TJSP, 06/11/2026):
 - `url` é um link assinado que **expira em 300 segundos**. O download tem que ser feito logo; se o link expirar, basta pedir os metadados de novo.
 - O ZIP traz `numero_paginas` arquivos `{SIGLA}-D-{data}_{k}.json`. Cada um tem `{"count": …, "items": [...]}` com até 1.000 publicações.
 - `meio=D` é o diário. O `meio=E` é a Plataforma Nacional de Editais e fica fora.
-- **Não verificado:**
-  - se `hash` é o SHA-256 do ZIP;
-  - o que a API devolve em fins de semana, feriados e dias sem caderno;
-  - o que acontece quando um dia tem `versao` > 1 (republicação).
+- **Verificado em 08/11/2026:**
+  - `hash` é o **SHA-256 do ZIP**. O do caderno de 06/11 bateu.
+  - Dia sem caderno (sábado 07/11, domingo 08/11, dia futuro) devolve **HTTP 404** com `{"erro": "Nenhum caderno encontrado para os parâmetros informados."}`.
+  - Feriado pode ter caderno pequeno: em 02/11 (Finados) foram 35 publicações.
+- **Não verificado:** o que acontece quando um dia tem `versao` > 1 (republicação).
 
 ### 7.2 Campos de cada publicação dentro do caderno
 
