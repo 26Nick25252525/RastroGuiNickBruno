@@ -1,4 +1,5 @@
 import hashlib
+import http.client
 import json
 import time
 import urllib.error
@@ -50,9 +51,12 @@ class ClienteUrllib:
 
     def baixar(self, url: str, destino: Path) -> None:
         destino.parent.mkdir(parents=True, exist_ok=True)
-        with self._abrir(url) as resposta, destino.open("wb") as saida:
-            while bloco := resposta.read(_BLOCO):
-                saida.write(bloco)
+        try:
+            with self._abrir(url) as resposta, destino.open("wb") as saida:
+                while bloco := resposta.read(_BLOCO):
+                    saida.write(bloco)
+        except (TimeoutError, OSError, http.client.HTTPException) as erro:
+            raise HttpErro(0) from erro
 
 
 def dias_uteis(inicio: date, fim: date) -> list[date]:
@@ -137,8 +141,10 @@ def baixar_caderno(
             else:
                 parcial.replace(destino)
                 return info, destino
-        except HttpErro as erro:
-            motivo = f"HTTP {erro.status}"
+        except (HttpErro, TimeoutError, OSError) as erro:
+            motivo = erro.args[0] if erro.args else type(erro).__name__
+            if isinstance(erro, HttpErro):
+                motivo = f"HTTP {erro.status}"
             parcial.unlink(missing_ok=True)
         if tentativa < 3:
             espera(2 if tentativa == 1 else 4)

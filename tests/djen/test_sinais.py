@@ -148,6 +148,44 @@ DETECTAR = [
         "⚠ devedor não localizado",
         "Manifeste-se sobre a citação negativa.",
     ),
+    ("leilao_negativo", P, 20, "leilão negativo", "O leilão restou deserto."),
+    ("leilao_negativo", P, 20, "leilão negativo", "Declaro deserto o leilão."),
+    ("leilao_negativo", P, 20, "leilão negativo", "A praça restou deserta."),
+    ("leilao_negativo", P, 20, "leilão negativo", "A hasta restou negativa."),
+    (
+        "imovel_penhorado",
+        P,
+        15,
+        "imóvel penhorado/avaliado",
+        "Penhore-se o imóvel de matrícula nº 12.345.",
+    ),
+    (
+        "arquivamento_provisorio",
+        D,
+        8,
+        "arquivamento provisório",
+        "Determino o arquivamento provisório dos autos.",
+    ),
+    (
+        "arquivamento_provisorio",
+        D,
+        8,
+        "arquivamento provisório",
+        "Arquivem-se provisoriamente os autos.",
+    ),
+    (
+        "bloqueio_negativo",
+        D,
+        10,
+        "bloqueio infrutífero",
+        "Certifico que a pesquisa pelo sistema Sisbajud retornou (negativo).",
+    ),
+    ("bloqueio_negativo", D, 10, "bloqueio infrutífero", "SISBAJUD: negativo."),
+    ("bloqueio_negativo", D, 10, "bloqueio infrutífero", "A pesquisa via SISBAJUD restou negativa."),
+    ("sem_bens", X, -10, "⚠ sem bens localizados", "Suspendo nos termos do artigo 921, III, do CPC."),
+    ("sem_bens", X, -10, "⚠ sem bens localizados", "Ausência de bens penhoráveis."),
+    ("sem_bens", X, -10, "⚠ sem bens localizados", "Cuida-se de execução frustrada."),
+    ("acordo_frustrado", D, 10, "acordo frustrado", "O acordo restou infrutífero."),
 ]
 
 NAO_DETECTAR = [
@@ -161,6 +199,7 @@ NAO_DETECTAR = [
     ("gratuidade_devedor", PADRAO_1),
     ("salario_impenhoravel", "Comprove o executado a impenhorabilidade."),
     ("sem_bens", "Suspendo o processo por 30 dias."),
+    ("gratuidade_devedor", "Indefiro ao executado os benefícios da justiça gratuita."),
 ]
 
 
@@ -206,3 +245,13 @@ def test_trecho_e_a_frase_original():
     frase = "Alega a executada tratar-se de bem de família."
     sinais = {s.chave: s for s in detectar_sinais(frase)}
     assert sinais["bem_de_familia"].trecho == frase
+
+
+def test_texto_padrao_nao_apaga_penhora_na_mesma_frase():
+    texto = "Defiro a penhora do imóvel, salvo se a parte for beneficiária da justiça gratuita."
+    assert "imovel_penhorado" in {s.chave for s in detectar_sinais(texto)}
+
+
+def test_silencio_sem_artigo_485_ainda_e_arquivamento():
+    texto = "No silêncio, remetam-se os autos ao arquivo provisório."
+    assert any(s.chave == "arquivamento_provisorio" for s in detectar_sinais(texto))

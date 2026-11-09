@@ -78,6 +78,30 @@ def test_desiste_apos_3_falhas_sem_deixar_lixo(tmp_path):
     assert list(tmp_path.iterdir()) == []
 
 
+def test_queda_no_meio_do_download_nao_deixa_parcial(tmp_path):
+    class ClienteCai:
+        def __init__(self):
+            self.vezes = 0
+
+        def get_json(self, url):
+            return meta(b"zip")
+
+        def baixar(self, url, destino):
+            self.vezes += 1
+            destino.write_bytes(b"parcial")
+            if self.vezes < 3:
+                raise TimeoutError("caiu")
+            destino.write_bytes(b"zip")
+
+    caminho_info = baixar_caderno(
+        ClienteCai(), "TJSP", date(2026, 11, 6), tmp_path, espera=lambda s: None
+    )
+    assert caminho_info is not None
+    _, caminho = caminho_info
+    assert caminho.read_bytes() == b"zip"
+    assert list(tmp_path.glob("*.part")) == []
+
+
 def test_hash_diferente_conta_como_falha(tmp_path):
     c = ClienteFalso({URL_06: meta(b"zip")}, {"https://s3/z": b"corrompido"})
     with pytest.raises(ErroDownload):
