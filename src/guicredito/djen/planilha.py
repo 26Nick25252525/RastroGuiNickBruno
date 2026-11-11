@@ -1,3 +1,19 @@
+"""Write the three-tab workbook that ``pipeline`` returns a path to.
+
+``escrever_planilha`` creates ``saida/casos_djen_{inicio}_a_{fim}.xlsx``.
+Casos is one row per ``CasoPontuado`` from ``pontuacao``, in that order.
+The Processo cell uses ``texto.formatar_cnj`` and links to the newest act.
+Signal columns print the labels from ``sinais``. Green is 75 points or
+more. Yellow is 50 to 74.
+
+Publicações is the full text of those same cases, from the second zip
+read in ``pipeline``. ``texto.limpar_para_excel`` strips characters Excel
+refuses, and a cell that would pass 32,767 characters is cut.
+
+Como ler explains each Casos column, repeats the points from
+``pontuacao``, and lists the funnel counts stored on ``ResumoRodada``.
+"""
+
 from pathlib import Path
 
 from openpyxl import Workbook

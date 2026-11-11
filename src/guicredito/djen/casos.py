@@ -1,3 +1,18 @@
+"""Fold many publications of one process into a single case.
+
+``pipeline`` calls ``resumir`` on each collection publication, then
+``montar_casos`` on that whole list. ``resumir`` asks ``partes`` for the
+creditor and debtor names, ``sinais`` for the phrases worth points, and
+``texto.ano_cnj`` plus ``anos_citados`` for how old the debt looks.
+
+``montar_casos`` groups by process number. The newest act supplies the
+class, the court, the link and the last publication date. The creditor is
+the highest-precedence name (fund, then bank, then company, then person).
+``so_empresa`` is true when every debtor is a company. ``pipeline`` drops
+those before ``pontuacao`` sees them. ``comarca`` shortens the court name
+for the Comarca column that ``planilha`` writes.
+"""
+
 import re
 from collections.abc import Iterable
 

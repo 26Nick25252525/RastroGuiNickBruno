@@ -1,3 +1,14 @@
+"""Small string tools. Other files call these instead of repeating them.
+
+``leitura`` uses ``limpar_html`` to turn the gazette HTML into plain text.
+``partes`` and ``sinais`` use ``normalizar`` (no accents, lowercase) so
+every name check and every regex is written against the same form.
+``sinais`` uses ``frases`` to split sentences without cutting ``art. 921``
+or a CNJ number in half. ``casos`` uses ``ano_cnj`` to read the year inside
+a 20-digit case number. ``planilha`` uses ``formatar_cnj`` for the Processo
+column and ``limpar_para_excel`` to strip characters Excel refuses.
+"""
+
 import html
 import re
 import unicodedata

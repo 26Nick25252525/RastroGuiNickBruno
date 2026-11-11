@@ -1,3 +1,15 @@
+"""Download one caderno zip per weekday and keep it in ``dados/cadernos``.
+
+``pipeline`` asks ``periodo_padrao`` for the default date range and
+``dias_uteis`` for the weekdays inside it. For each day, ``baixar_caderno``
+calls the DJEN API, gets back a ``CadernoInfo`` (from ``modelos``) plus a
+short-lived zip URL, and checks the SHA-256. A zip already on disk with
+the same hash is reused. A 404 means that day has no caderno, and
+``pipeline`` records it instead of failing. A dropped connection or a bad
+hash deletes the ``.part`` file and tries again, up to three times.
+``leitura`` is what later opens the zip this file saved.
+"""
+
 import hashlib
 import http.client
 import json

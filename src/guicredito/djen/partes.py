@@ -1,3 +1,19 @@
+"""Decide which acts are collection cases, and who the parties are.
+
+``pipeline`` calls ``classe_de_cobranca`` on every publication from
+``leitura``. Execução de título, cumprimento de sentença (including the
+provisional ones) and monitória stay in. Fazenda, alimentos, busca e
+apreensão, fiscal and the other names in ``_FORA`` are dropped before
+any scoring.
+
+``casos.resumir`` calls the other functions. ``partes_do_cabecalho`` reads
+labels such as EXEQUENTE and EXECUTADO out of the act text. ``tipo_credor``
+ranks a name as fund, bank, company or person, using ``texto.normalizar``.
+``eh_empresa`` does the same for a debtor. A CNPJ counts only for the name
+it follows, so the creditor's CNPJ does not turn the debtor into a company.
+``pipeline`` later drops a case whose debtors are all companies.
+"""
+
 import re
 
 from guicredito.djen.modelos import TipoCredor

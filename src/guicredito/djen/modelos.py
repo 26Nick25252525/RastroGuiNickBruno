@@ -1,3 +1,18 @@
+"""The records the other files pass to each other. No decisions live here.
+
+``leitura`` builds a ``Publicacao`` for one act in the gazette.
+``fonte`` builds a ``CadernoInfo`` for one downloaded zip. ``casos.resumir``
+turns a publication into a ``ResumoPublicacao`` (parties, signals, cited
+years). ``casos.montar_casos`` folds those into one ``Caso`` per process
+number. ``pontuacao`` wraps a case in ``CasoPontuado``. ``pipeline`` fills
+a ``ResumoRodada`` with the counts printed at the end, and ``planilha``
+reads that to write the Como ler sheet.
+
+``TipoCredor`` and ``Bloco`` are the labels ``partes``, ``sinais`` and
+``pontuacao`` share, so a bank found in one file is the same bank scored
+in another.
+"""
+
 from dataclasses import dataclass
 from datetime import date, datetime
 from enum import StrEnum

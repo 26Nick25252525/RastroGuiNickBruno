@@ -1,3 +1,15 @@
+"""Turn one downloaded caderno zip into publications.
+
+``fonte.py`` saves the zip. This file opens it. Each zip holds JSON files,
+and each JSON file holds a list called ``items``. One item is one act in
+the gazette. ``ler_caderno`` walks those items and yields a ``Publicacao``
+for each one that is still active. An item with ``ativo`` false, or with a
+cancellation date, is skipped. ``_publicacao`` copies the fields the rest
+of the pipeline needs (date, court, case number, class, link, parties) and
+strips the HTML out of the text. Nothing here filters by class or score.
+That happens later, in ``pipeline.py``.
+"""
+
 import json
 import zipfile
 from collections.abc import Iterator

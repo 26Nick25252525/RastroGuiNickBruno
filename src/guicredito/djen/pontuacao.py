@@ -1,3 +1,17 @@
+"""Turn one case into a score, then rank the list.
+
+``pipeline`` calls ``pontuar`` on each case that still has a natural-person
+debtor, passing the current year. Points come from the creditor type set
+by ``partes``, the debt age on the ``Caso`` built by ``casos``, and the
+``Sinal`` list from ``sinais``. Wear, assets and vulnerability each stop
+at a cap. Discounts do not. A missing debtor subtracts 15 more. The total
+never goes below 0.
+
+``ordenar`` sorts by total (highest first), then by older debt, then by
+process number, and cuts the list at ``limite``. ``planilha`` writes that
+cut, in that order, as the Casos sheet.
+"""
+
 from collections.abc import Iterable
 
 from guicredito.djen.modelos import Bloco, Caso, CasoPontuado, Pontuacao, TipoCredor

@@ -1,3 +1,17 @@
+"""Find the phrases that add or remove points on a case.
+
+``casos.resumir`` calls ``detectar_sinais`` on the text of one publication.
+``texto.frases`` splits that text. Each sentence is normalized, then any
+span that matches ``PADROES`` is blanked out. Those spans are repeated
+TJSP boilerplate (fee instructions, generic SisbaJud notices, the
+Defensoria template). What remains is checked against ``CATALOGO``: one
+hit per key, kept as a ``Sinal`` from ``modelos``.
+
+The block on each signal (wear, assets, vulnerability, discount, alert)
+is what ``pontuacao`` later sums, up to that block's cap. The label and
+the quoted sentence are what ``planilha`` prints in the signal columns.
+"""
+
 import re
 
 from guicredito.djen.modelos import Bloco, Sinal

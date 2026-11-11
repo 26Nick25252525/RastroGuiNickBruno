@@ -1,3 +1,20 @@
+"""Run the whole command, from dates to the printed summary.
+
+``__main__.py`` calls ``main``. ``main`` reads ``--inicio``, ``--fim``,
+``--limite`` and ``--tribunal``. With no dates, ``periodo_padrao`` in
+``fonte.py`` picks the last five weekdays through yesterday.
+
+``rodar`` is the sequence. ``fonte.baixar_caderno`` saves one zip per
+weekday. ``leitura.ler_caderno`` yields every publication. ``partes``
+keeps only collection classes. ``casos.resumir`` and ``casos.montar_casos``
+fold those publications into one case per process number. Company-only
+debtors are dropped. ``pontuacao`` scores what remains and keeps the top
+``limite`` (300). The zip is read a second time, only for those winning
+case numbers, so the Publicações sheet can hold their full text.
+``planilha.escrever_planilha`` writes ``saida/casos_djen_....xlsx``.
+``main`` then prints the funnel counts.
+"""
+
 import argparse
 import sys
 from collections.abc import Iterable

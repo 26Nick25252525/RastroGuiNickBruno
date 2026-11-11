@@ -1,0 +1,693 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Execuções SP — Fontes e Plano</title>
+<style>
+:root{
+  --bg:#faf9f6; --panel:#ffffff; --ink:#1e2430; --muted:#5b6474; --line:#dcd9d0;
+  --accent:#0f5c8c; --accent-soft:#e3eef6;
+  --ok:#1a7a3e; --ok-soft:#e2f2e7;
+  --warn:#8a6100; --warn-soft:#f7edd3;
+  --bad:#a33030; --bad-soft:#f8e4e4;
+  --gray:#5b6474; --gray-soft:#ebeae5;
+  --code:#f0efe9;
+}
+@media (prefers-color-scheme: dark){
+  :root:not([data-theme="light"]){
+    --bg:#15181e; --panel:#1d222b; --ink:#e7e9ee; --muted:#9aa3b2; --line:#333a46;
+    --accent:#6db3dd; --accent-soft:#1d3240;
+    --ok:#6fce93; --ok-soft:#1c3324;
+    --warn:#e3b95b; --warn-soft:#3a2f14;
+    --bad:#e38a8a; --bad-soft:#3d2020;
+    --gray:#9aa3b2; --gray-soft:#272c36;
+    --code:#242a35;
+  }
+}
+:root[data-theme="dark"]{
+  --bg:#15181e; --panel:#1d222b; --ink:#e7e9ee; --muted:#9aa3b2; --line:#333a46;
+  --accent:#6db3dd; --accent-soft:#1d3240;
+  --ok:#6fce93; --ok-soft:#1c3324;
+  --warn:#e3b95b; --warn-soft:#3a2f14;
+  --bad:#e38a8a; --bad-soft:#3d2020;
+  --gray:#9aa3b2; --gray-soft:#272c36;
+  --code:#242a35;
+}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--ink);font:16px/1.55 Georgia,'Times New Roman',serif;}
+header,main{max-width:1020px;margin:0 auto;padding:0 16px}
+header{padding-top:28px}
+h1{font-size:1.7em;margin:.2em 0 .1em}
+h2{font-size:1.25em;margin:2.2em 0 .5em;padding-top:.6em;border-top:2px solid var(--line)}
+h3{font-size:1.05em;margin:1.4em 0 .4em}
+p,li{max-width:72ch}
+a{color:var(--accent)}
+small,.muted{color:var(--muted)}
+.sans{font-family:-apple-system,"Segoe UI",Helvetica,Arial,sans-serif}
+.topbar{display:flex;justify-content:space-between;align-items:center;gap:12px;flex-wrap:wrap}
+button#tema{font:13px -apple-system,Helvetica,sans-serif;background:var(--panel);color:var(--ink);border:1px solid var(--line);border-radius:8px;padding:6px 12px;cursor:pointer}
+.box{background:var(--panel);border:1px solid var(--line);border-radius:12px;padding:16px 18px;margin:14px 0}
+.box--accent{border-left:4px solid var(--accent)}
+.tag{display:inline-block;font:12px/1.6 -apple-system,Helvetica,sans-serif;padding:0 8px;border-radius:999px;white-space:nowrap}
+.tag-v{background:var(--ok-soft);color:var(--ok)}
+.tag-d{background:var(--warn-soft);color:var(--warn)}
+.tag-x{background:var(--bad-soft);color:var(--bad)}
+.tag-nr{background:var(--gray-soft);color:var(--gray)}
+.tag-id{background:var(--accent-soft);color:var(--accent);font-weight:bold}
+.tablewrap{overflow-x:auto;margin:12px 0;border:1px solid var(--line);border-radius:10px;background:var(--panel)}
+table{border-collapse:collapse;width:100%;font:13.5px/1.45 -apple-system,"Segoe UI",Helvetica,Arial,sans-serif}
+th,td{padding:8px 10px;border-bottom:1px solid var(--line);vertical-align:top;text-align:left}
+th{background:var(--accent-soft);color:var(--ink);position:sticky;top:0}
+tr:last-child td{border-bottom:none}
+td.num{text-align:right;font-variant-numeric:tabular-nums}
+code,.mono{font:0.92em ui-monospace,Menlo,Consolas,monospace;background:var(--code);border-radius:4px;padding:1px 5px}
+ol.flow li{margin:.4em 0}
+dl.gloss dt{font-weight:bold;margin-top:.8em}
+dl.gloss dd{margin:0 0 0 0;color:var(--muted)}
+.toc{columns:2;column-gap:28px;font-family:-apple-system,Helvetica,sans-serif;font-size:14px}
+.toc a{text-decoration:none}
+figure{margin:18px 0}
+figure svg{width:100%;height:auto;display:block}
+figcaption{font:12.5px -apple-system,Helvetica,sans-serif;color:var(--muted);margin-top:6px}
+.legend{font:12.5px -apple-system,Helvetica,sans-serif;color:var(--muted);margin:6px 0 0}
+@media (max-width:640px){.toc{columns:1}}
+@media print{button#tema{display:none}body{background:#fff;color:#000}}
+</style>
+</head>
+<body>
+<header>
+  <div class="topbar">
+    <div>
+      <h1>Execuções na cidade de São Paulo — fontes e plano do mapa</h1>
+      <p class="sans muted">Pesquisa feita em 26/10/2026 · só leitura da web pública · nenhuma pessoa ou empresa real foi consultada · única chamada de dados viva: API pública do DataJud, contagens (<code>size: 0</code>), 8 de 20 chamadas usadas</p>
+    </div>
+    <button id="tema" type="button">Tema: auto</button>
+  </div>
+  <p class="sans muted">Escopo: Comarca da Capital · TJSP cível (execução de título extrajudicial + cumprimento de sentença) · TRT-2 fase de execução · TRF-3 só credor privado · devedores PF e PJ. Fora: execução fiscal, família, criminal, segredo de justiça, outras comarcas.</p>
+  <nav class="box">
+    <div class="toc">
+      <a href="#sec-0">0 · Resposta curta</a><br>
+      <a href="#sec-1">1 · Em palavras simples</a><br>
+      <a href="#sec-2">2 · Fontes (F1…F24)</a><br>
+      <a href="#sec-3">3 · Como montar o mapa (M1…M3)</a><br>
+      <a href="#sec-4">4 · Filtros e score (S1…S20)</a><br>
+      <a href="#sec-5">5 · Sinais de blindagem (B1…B5)</a><br>
+      <a href="#sec-6">6 · Depois da compra (D1…D7)</a><br>
+      <a href="#sec-7">7 · Limites</a><br>
+      <a href="#sec-8">8 · Perguntas para advogado (L1…L10)</a><br>
+      <a href="#sec-9">9 · Perguntas para o Nick (Q1…Q6)</a><br>
+      <a href="#sec-10">10 · Próxima task (proposta)</a>
+    </div>
+  </nav>
+</header>
+<main>
+
+<!-- ============================================================ 0 -->
+<h2 id="sec-0">0 · Resposta curta</h2>
+<div class="box box--accent">
+<ol class="sans" style="margin:0;padding-left:1.2em">
+<li><strong>Sim, o mapa pode ser montado.</strong> O DataJud (API pública do CNJ, grátis) lista as execuções da capital por classe, vara e movimento — mas <strong>sem nome das partes e sem valor da causa</strong>. Os nomes vêm do DJE-TJSP (download diário grátis do caderno da capital), do DJEN, do e-SAJ (manual) ou de provedor comercial (Judit, Escavador).</li>
+<li><strong>Custo por caso:</strong> as fontes públicas (DataJud, CNPJ, IPTU, PGFN, protesto, CNDT) são grátis; consulta de provedor custa de R$ 0,25 a R$ 4,00 (tabela pública da Judit); certidões de matrícula/JUCESP são pagas por tabela de emolumentos (valor exato: não verificado).</li>
+<li><strong>Tamanho do mercado:</strong> TJSP, capital, 1º grau, classes 12154 + 156 = <strong>168.997 processos</strong> (contagem exata no DataJud, 26/10/2026). TRT-2 e TRF-3: <strong>não rodado</strong> (chamadas interrompidas; a API instável devolveu 429/504).</li>
+<li><strong>Blocker 1:</strong> o Termo de Uso do DataJud restringe a API a fins <em>não comerciais</em> (cláusulas 3.3 e 3.8) — usar o DataJud como base de um negócio precisa de parecer de advogado (<a href="#L7">L7</a>).</li>
+<li><strong>Blocker 2:</strong> o TJSP bloqueia robôs no e-SAJ e diz que consulta robotizada em massa "depende de regulamentação" — não existe canal oficial de consulta em massa com nomes no TJSP; a rota legal é o diário oficial ou provedor licenciado.</li>
+<li><strong>Blocker 3:</strong> a consulta pública do TRT-2 só aceita o número do processo (sem busca por nome/CPF); e o site do TRF-3 estava inacessível na data da pesquisa — a fatia federal ficou <strong>não verificada</strong>, inclusive quanto ao peso da execução fiscal (que não pode ser comprada).</li>
+<li><strong>Achado técnico:</strong> no índice TJSP do DataJud as datas de ajuizamento vêm corrompidas (deslocadas ~600 anos) — a idade do processo deve ser lida do ano embutido no número CNJ, não desse campo.</li>
+<li><strong>Caminho recomendado:</strong> piloto pequeno no TJSP cível (seção <a href="#sec-10">10</a>) depois que o advogado responder L1–L7 e o Nick responder Q1–Q6.</li>
+</ol>
+</div>
+
+<!-- ============================================================ 1 -->
+<h2 id="sec-1">1 · Em palavras simples</h2>
+
+<div class="box">
+<h3 style="margin-top:0">O que é o mapa — e o que ele nunca faz</h3>
+<p>O mapa é uma <strong>lista organizada de processos de execução em aberto na cidade de São Paulo</strong>, onde alguém já ganhou (ou já tem um título) e está tentando receber. Para cada processo, o mapa junta sinais públicos sobre o devedor — imóveis, empresas, dívidas concorrentes — e dá uma nota: <em>vale a pena tentar comprar este crédito?</em></p>
+<p>O que ele <strong>nunca</strong> faz: não vê conta bancária, não vê veículos, não vê dinheiro vivo nem bens no exterior (isso só o juiz vê, depois da compra); não investiga parentes, amigos ou sócios como pessoas — terceiros só aparecem quando estão do outro lado de um registro do próprio devedor; não conclui nada jurídico sozinho (tudo passa pelo advogado); e não aborda ninguém.</p>
+</div>
+
+<h3>Como um caso flui, do achado à nota</h3>
+<ol class="flow">
+  <li>O DataJud devolve a lista de execuções da capital (número do processo, classe, vara, movimentos) — <a href="#F1">F1</a>.</li>
+  <li>Um filtro barato descarta o que não interessa: já extinto, já suspenso por falta de bens, muito novo, muito velho — <a href="#S3">S3</a>–<a href="#S7">S7</a>.</li>
+  <li>Para os que sobram, o número do processo é procurado no DJE-TJSP / DJEN (ou num provedor pago) para descobrir <strong>quem é o credor e quem é o devedor</strong> — <a href="#F6">F6</a>, <a href="#F5">F5</a>, <a href="#F9">F9</a>.</li>
+  <li>Com o CNPJ ou CPF do devedor, as fontes de patrimônio são consultadas: cadastro CNPJ e sócios, IPTU da capital, pesquisa de imóveis no registro — <a href="#S8">S8</a>–<a href="#S13">S13</a>.</li>
+  <li>As dívidas concorrentes entram: dívida ativa federal e estadual, protestos, dívidas trabalhistas, outras execuções, recuperação judicial — <a href="#S14">S14</a>–<a href="#S19">S19</a>.</li>
+  <li>Os sinais de blindagem são checados nos registros do próprio devedor: imóvel que saiu do nome depois da ação, sócio que saiu da empresa, empresa nova no mesmo endereço — <a href="#sec-5">B1–B5</a>.</li>
+  <li>O score pesa tudo e ordena os casos — <a href="#sec-4">seção 4</a>.</li>
+  <li>O Nick olha os melhores, o advogado valida, e só então começa a conversa de compra (fora do escopo deste documento).</li>
+</ol>
+
+<div class="box">
+<h3 style="margin-top:0">O dia do Nick com o mapa</h3>
+<p class="sans">De manhã o mapa mostra, por exemplo: "34 casos novos entraram no corte; 5 têm score alto". O Nick abre os 5, vê: valor da execução, idade, o que o credor já tentou, os imóveis e empresas do devedor, as dívidas que competem com ele, e os alertas de blindagem. Marca 2 para o advogado olhar. O resto do dia é dele — o mapa só recalcula quando as fontes atualizam (diário oficial: todo dia útil; DataJud: conforme o tribunal envia; CNPJ: mensal; IPTU: anual).</p>
+</div>
+
+<div class="box">
+<h3 style="margin-top:0">Exemplo com números inventados <span class="tag tag-x sans">todos os valores abaixo são fictícios, só para mostrar a conta</span></h3>
+<ul class="sans">
+<li>Crédito em execução com valor de face <strong>R$ 100.000</strong>; devedor PJ ativa, com imóvel e sem recuperação judicial.</li>
+<li>Nick paga <strong>R$ 15.000</strong> ao credor original (15% — dentro da faixa alvo de 10–20%).</li>
+<li>Custos de análise do caso: consultas de provedor + certidões ≈ <strong>R$ 150</strong> (fictício; os preços reais estão em F9, F18, F20).</li>
+<li>Advogado formaliza a cessão e negocia; acordo homologado em <strong>R$ 45.000</strong> (45% — dentro da faixa alvo de 40–50%), pago em 12 meses.</li>
+<li>Honorários de êxito do advogado (fictício: 20%) = <strong>R$ 9.000</strong>.</li>
+<li>Resultado: 45.000 − 9.000 − 15.000 − 150 ≈ <strong>R$ 20.850 líquidos</strong>, em ~18–24 meses — se tudo der certo. Se o devedor não pagar, o prejuízo é o preço pago + custos.</li>
+</ul>
+</div>
+
+<figure>
+<svg viewBox="0 0 960 330" role="img" aria-label="Fluxo: fontes alimentam o mapa, que alimenta filtros, score e a decisão do Nick; depois da compra, o advogado usa as ferramentas do juízo" font-family="-apple-system,Helvetica,Arial,sans-serif" font-size="13">
+  <defs>
+    <marker id="seta" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+      <path d="M0,0 L10,5 L0,10 z" fill="currentColor"/>
+    </marker>
+  </defs>
+  <g fill="none" stroke="currentColor" stroke-width="1.4">
+    <!-- fontes -->
+    <rect x="12" y="18" width="178" height="64" rx="8"/>
+    <rect x="12" y="96" width="178" height="64" rx="8"/>
+    <rect x="12" y="174" width="178" height="64" rx="8"/>
+    <rect x="12" y="252" width="178" height="64" rx="8"/>
+    <!-- mapa -->
+    <rect x="260" y="120" width="150" height="92" rx="10" stroke-width="2.2"/>
+    <!-- filtros -->
+    <rect x="470" y="120" width="130" height="92" rx="10"/>
+    <!-- score -->
+    <rect x="648" y="132" width="90" height="68" rx="10"/>
+    <!-- decisão -->
+    <rect x="786" y="132" width="160" height="68" rx="10" stroke-width="2.2"/>
+    <!-- advogado -->
+    <rect x="648" y="246" width="298" height="70" rx="10" stroke-dasharray="6 4"/>
+    <!-- arrows -->
+    <line x1="190" y1="50"  x2="252" y2="140" marker-end="url(#seta)"/>
+    <line x1="190" y1="128" x2="252" y2="155" marker-end="url(#seta)"/>
+    <line x1="190" y1="206" x2="252" y2="180" marker-end="url(#seta)"/>
+    <line x1="190" y1="284" x2="252" y2="196" marker-end="url(#seta)"/>
+    <line x1="410" y1="166" x2="462" y2="166" marker-end="url(#seta)"/>
+    <line x1="600" y1="166" x2="640" y2="166" marker-end="url(#seta)"/>
+    <line x1="738" y1="166" x2="778" y2="166" marker-end="url(#seta)"/>
+    <line x1="866" y1="200" x2="830" y2="238" marker-end="url(#seta)"/>
+  </g>
+  <g fill="currentColor">
+    <text x="101" y="44" text-anchor="middle" font-weight="bold">Tribunais</text>
+    <text x="101" y="62" text-anchor="middle" font-size="11.5">DataJud · e-SAJ · PJe</text>
+    <text x="101" y="122" text-anchor="middle" font-weight="bold">Diários oficiais</text>
+    <text x="101" y="140" text-anchor="middle" font-size="11.5">DJE-TJSP · DJEN</text>
+    <text x="101" y="200" text-anchor="middle" font-weight="bold">Patrimônio público</text>
+    <text x="101" y="218" text-anchor="middle" font-size="11.5">CNPJ · IPTU · ONR</text>
+    <text x="101" y="278" text-anchor="middle" font-weight="bold">Dívidas do devedor</text>
+    <text x="101" y="296" text-anchor="middle" font-size="11.5">PGFN · protestos · CNDT</text>
+    <text x="335" y="158" text-anchor="middle" font-weight="bold">MAPA</text>
+    <text x="335" y="176" text-anchor="middle" font-size="11.5">execuções em aberto</text>
+    <text x="335" y="192" text-anchor="middle" font-size="11.5">na capital</text>
+    <text x="535" y="158" text-anchor="middle" font-weight="bold">FILTROS</text>
+    <text x="535" y="176" text-anchor="middle" font-size="11.5">caso · patrimônio</text>
+    <text x="535" y="192" text-anchor="middle" font-size="11.5">dívidas · blindagem</text>
+    <text x="693" y="162" text-anchor="middle" font-weight="bold">SCORE</text>
+    <text x="693" y="180" text-anchor="middle" font-size="11.5">0–100</text>
+    <text x="866" y="160" text-anchor="middle" font-weight="bold">Nick decide</text>
+    <text x="866" y="178" text-anchor="middle" font-size="11.5">com o advogado</text>
+    <text x="797" y="272" font-weight="bold">Depois da compra (só no processo):</text>
+    <text x="797" y="290" font-size="11.5">SISBAJUD · RENAJUD · INFOJUD · SNIPER · CNIB</text>
+    <text x="660" y="272" font-size="11.5">⚖</text>
+  </g>
+</svg>
+<figcaption>Fontes → mapa → filtros → score → decisão. As ferramentas que acham o "dinheiro escondido" (tracejado) só existem dentro do processo, pedidas pelo advogado do novo credor — o mapa apenas prevê onde vale a pena procurar.</figcaption>
+</figure>
+
+<h3>Glossário</h3>
+<dl class="gloss sans">
+<dt>Execução (de título extrajudicial)</dt><dd>Processo para cobrar uma dívida que já nasce com força de cobrança (cheque, contrato com testemunhas, confissão de dívida), sem precisar provar o mérito antes. Classe TPU 12154.</dd>
+<dt>Cumprimento de sentença</dt><dd>A fase de cobrança depois que alguém ganhou um processo. Classe TPU 156.</dd>
+<dt>Penhora</dt><dd>O juiz "marca" um bem do devedor para garantir o pagamento. Se já houve penhora, o caso tem bem localizado.</dd>
+<dt>Cessão de crédito</dt><dd>O credor vende o direito de receber para outra pessoa. É o que o Nick compraria (CPC art. 778 §1º III; CC arts. 286–298 — confirmar com advogado).</dd>
+<dt>Deságio</dt><dd>O desconto entre o valor de face e o preço pago. Comprar por 15% de 100 = deságio de 85%.</dd>
+<dt>Fraude à execução</dt><dd>O devedor vende/transfere bens depois de processado, para não pagar (CPC art. 792). A venda pode ser declarada ineficaz — confirmar com advogado.</dd>
+<dt>Averbação premonitória</dt><dd>Anotação da existência da execução na matrícula do imóvel do devedor (CPC art. 828). Protege o credor e denuncia tentativa de venda.</dd>
+<dt>Desconsideração da personalidade jurídica</dt><dd>O juiz autoriza cobrar dos sócios (ou de outra empresa do grupo) quando a PJ foi usada para esconder patrimônio (CPC arts. 133–137 — confirmar com advogado).</dd>
+<dt>Prescrição intercorrente</dt><dd>A execução "morre de velha": suspensa por falta de bens por 1 ano, depois corre prazo que pode extinguir o direito (CPC art. 921 — confirmar prazos com advogado).</dd>
+<dt>Embargos à execução / impugnação</dt><dd>As defesas do devedor (embargos na execução de título extrajudicial; impugnação no cumprimento de sentença). Pendentes = risco e demora.</dd>
+<dt>Matrícula</dt><dd>A "certidão de nascimento" do imóvel no cartório de registro: traz o dono atual e todo o histórico de donos e ônus.</dd>
+<dt>QSA</dt><dd>Quadro de Sócios e Administradores de um CNPJ — quem são os sócios e desde quando.</dd>
+<dt>Protesto</dt><dd>Registro público em cartório de que uma dívida não foi paga. Sinal de outras dívidas competindo.</dd>
+<dt>Dívida ativa</dt><dd>Dívidas com o governo (União, estado, município) já inscritas para cobrança. Competem com o crédito do Nick pelos mesmos bens.</dd>
+<dt>Recuperação judicial (RJ) / falência</dt><dd>Regimes de insolvência da empresa. Devedor em RJ/falência muda tudo: o crédito cai no plano/concurso de credores.</dd>
+<dt>Acordo (transação)</dt><dd>Credor e devedor combinam um valor menor/parcelado e o juiz homologa (movimentos TPU 14099 + 277). É a saída principal do modelo do Nick.</dd>
+</dl>
+
+<!-- ============================================================ 2 -->
+<h2 id="sec-2">2 · Fontes (F1…F24)</h2>
+<p class="legend">Confiança: <span class="tag tag-v">verificado na página</span> = li a página oficial em 26/10/2026 · <span class="tag tag-d">somente docs</span> = baseado em documentação oficial ou fonte secundária citada · <span class="tag tag-x">não verificado</span> = não consegui confirmar. Todos os preços trazem a data de leitura; onde não há preço público, está dito.</p>
+
+<div class="tablewrap">
+<table>
+<thead><tr><th>id</th><th>Fonte</th><th>O que dá</th><th>Cobertura</th><th>Custo</th><th>Acesso</th><th>Captcha / login</th><th>Termos sobre automação</th><th>Dados pessoais / LGPD</th><th>Confiança</th></tr></thead>
+<tbody>
+<tr id="F1"><td><span class="tag tag-id">F1</span></td>
+<td><strong>DataJud — API Pública (CNJ)</strong><br><a href="https://datajud-wiki.cnj.jus.br/api-publica/">datajud-wiki.cnj.jus.br</a><br><small>lido 26/10/2026</small></td>
+<td>Metadados de todos os processos: nº, classe, assuntos, vara (com código IBGE do município), grau, movimentos com data. <strong>Sem partes, sem CPF/CNPJ, sem valor da causa</strong> (glossário oficial).</td>
+<td>TJSP, TRT-2, TRF-3 e todos os demais · PF/PJ indistinguíveis (não há partes)</td>
+<td>Grátis</td>
+<td>API REST (Elasticsearch DSL), chave pública publicada na própria wiki; páginas de até 10.000 + <code>search_after</code></td>
+<td>Sem captcha; header <code>APIKey</code></td>
+<td>Termo de Uso: fins <strong>não comerciais</strong> (3.3), proíbe explorar comercialmente dados derivados (3.8) → <a href="#L7">L7</a></td>
+<td>Baixo: o CNJ já remove partes e sigilosos</td>
+<td><span class="tag tag-v">verificado na página</span></td></tr>
+
+<tr id="F2"><td><span class="tag tag-id">F2</span></td>
+<td><strong>TJSP e-SAJ — consulta 1º grau</strong><br><a href="https://esaj.tjsp.jus.br/cpopg/open.do">esaj.tjsp.jus.br/cpopg</a><br><small>lido 26/10/2026</small></td>
+<td>Consulta processual completa: busca por nº, <strong>nome da parte</strong> (fonética), documento da parte (RG/CPF), advogado, OAB, CDA; capa e andamento do processo.</td>
+<td>TJSP · PF e PJ</td>
+<td>Grátis</td>
+<td>Só manual (web). Sem API pública.</td>
+<td>Sem captcha na tela de busca; segredo de justiça exige senha</td>
+<td>TJSP restringiu robôs (RPA): "consultas robotizadas em massa dependem de regulamentação… sem previsão" (comunicados via <a href="https://www.aasp.org.br/?p=40632">AASP</a>) → <strong>não raspar</strong></td>
+<td>Dados processuais públicos (Res. CNJ 121/2010, <a href="#F8b">F24</a>); uso em base própria → <a href="#L5">L5</a></td>
+<td><span class="tag tag-v">verificado na página</span></td></tr>
+
+<tr id="F3"><td><span class="tag tag-id">F3</span></td>
+<td><strong>TRT-2 PJe — consulta pública</strong><br><a href="https://pje.trt2.jus.br/consultaprocessual/">pje.trt2.jus.br/consultaprocessual</a><br><small>guia oficial lido 26/10/2026</small></td>
+<td>Andamento do processo <strong>apenas pelo número</strong>: "é possível verificar o andamento do processo apenas informando o seu número… dispensa login" (Guia Prático TRT-2, ed. 14/05/2024). Documentos exigem login.</td>
+<td>TRT-2 · sem busca por nome/CPF na consulta pública</td>
+<td>Grátis</td>
+<td>Manual (web, app JavaScript)</td>
+<td>Sem login p/ andamento; login p/ documentos</td>
+<td>Sem canal público de consulta em massa; nada publicado sobre automação</td>
+<td>No padrão JT, nomes podem aparecer abreviados ao público (verificado só no TRT-4) → conferir no TRT-2</td>
+<td><span class="tag tag-d">somente docs</span></td></tr>
+
+<tr id="F4"><td><span class="tag tag-id">F4</span></td>
+<td><strong>TRF-3 PJe — consulta pública</strong><br><a href="https://www.trf3.jus.br/">trf3.jus.br</a></td>
+<td>Consulta processual federal (PJe). Campos e captcha: não pude confirmar — <strong>o site não respondeu desta rede em 26/10/2026</strong> (www e pje1g, timeout).</td>
+<td>TRF-3 / Subseção SP</td>
+<td>Grátis (presumido)</td>
+<td>Manual (web)</td>
+<td>não verificado</td>
+<td>não verificado</td>
+<td>não verificado</td>
+<td><span class="tag tag-x">não verificado</span></td></tr>
+
+<tr id="F5"><td><span class="tag tag-id">F5</span></td>
+<td><strong>DJEN — Comunica (CNJ)</strong><br><a href="https://comunica.pje.jus.br/">comunica.pje.jus.br</a><br><small>descrição via CNJ/TJMG, lido 26/10/2026</small></td>
+<td>Diário nacional: publicações judiciais pesquisáveis por tribunal, órgão, tipo, datas, nº do processo, <strong>nome da parte</strong>, advogado, OAB. Desde 01/08/2024 recebe os atos judiciais da Justiça do Trabalho (aviso no DEJT). Publicações trazem nomes.</td>
+<td>Todos os tribunais em migração · PF e PJ</td>
+<td>Grátis</td>
+<td>Web; existe API (<code>comunicaapi.pje.jus.br</code>, usada por provedores) mas <strong>sem documentação pública localizada</strong></td>
+<td>Sem login na busca (pelo portal)</td>
+<td>Regida pela Res. CNJ 455/2022 (alterada 569/2024); regra de automação não localizada</td>
+<td>Publicações são públicas por lei; reuso em base → <a href="#L5">L5</a></td>
+<td><span class="tag tag-d">somente docs</span></td></tr>
+
+<tr id="F6"><td><span class="tag tag-id">F6</span></td>
+<td><strong>DJE-TJSP</strong><br><a href="https://dje.tjsp.jus.br/cdje/index.do">dje.tjsp.jus.br</a><br><small>lido 26/10/2026</small></td>
+<td>Diário do TJSP: pesquisa avançada por palavras-chave + data + caderno; <strong>download do caderno inteiro</strong> (Caderno 3 = 1ª instância Capital), "na íntegra", dias úteis das 20h às 8h. Publicações trazem nº do processo + partes + advogados.</td>
+<td>TJSP · PF e PJ</td>
+<td>Grátis</td>
+<td><strong>Download em lote (PDF diário)</strong> + busca web — a melhor rota legal para ligar nº do processo a nomes no TJSP</td>
+<td>Sem captcha, sem login ("Acesso Livre")</td>
+<td>Download oficial oferecido pelo próprio TJSP; sem termo contrário visível</td>
+<td>Publicações públicas; reuso em base → <a href="#L5">L5</a></td>
+<td><span class="tag tag-v">verificado na página</span></td></tr>
+
+<tr id="F7"><td><span class="tag tag-id">F7</span></td>
+<td><strong>DEJT</strong><br><a href="https://dejt.jt.jus.br/">dejt.jt.jus.br</a><br><small>lido 26/10/2026</small></td>
+<td>Diário da Justiça do Trabalho — hoje <strong>quase só atos administrativos</strong>: desde 01/08/2024 os atos judiciais saem no DJEN (F5). Útil só para histórico anterior a 2024.</td>
+<td>JT (TST, TRTs)</td>
+<td>Grátis</td>
+<td>Leitura de cadernos por data</td>
+<td>Área restrita p/ advogados; leitura aparentemente livre</td>
+<td>—</td>
+<td>Aviso de incidente de segurança em 21/08/2026 (trocar credenciais) — fonte instável</td>
+<td><span class="tag tag-v">verificado na página</span></td></tr>
+
+<tr id="F8"><td><span class="tag tag-id">F8</span></td>
+<td><strong>TPU / SGT (CNJ)</strong> — tabelas de classes e movimentos<br><a href="https://www.cnj.jus.br/sgt/consulta_publica_classes.php">cnj.jus.br/sgt</a><br><small>códigos confirmados em docs de tribunais, 26/10/2026</small></td>
+<td>O "dicionário" dos códigos: classes 12154 (exec. tít. extrajudicial), 156 (cumprimento), 1116 (exec. <em>fiscal</em> — fora do escopo); movimentos 11382 (bloqueio/penhora on-line), 276 (execução frustrada, art. 921 III), 898/11025/25 (suspensões), 277 (acordo art. 922), 14099 (homologação de acordo em execução), 196 (extinção da execução), 12259 (prescrição intercorrente). <strong>Penhora e arquivamento: códigos próprios ainda a confirmar no SGT.</strong></td>
+<td>Nacional</td>
+<td>Grátis</td>
+<td>Consulta web (formulário); fontes usadas: TJSP (SGTPU jul/2022), TJBA (2024 e 06/2026), exemplo oficial da wiki do DataJud</td>
+<td>Não</td>
+<td>—</td>
+<td>—</td>
+<td><span class="tag tag-d">somente docs</span></td></tr>
+
+<tr id="F9"><td><span class="tag tag-id">F9</span></td>
+<td><strong>Judit.io</strong> (provedor comercial)<br><a href="https://judit.io/planos-api/">judit.io/planos-api</a><br><small>preços lidos 26/10/2026</small></td>
+<td>API de consulta e monitoramento em "mais de 90 tribunais" por <strong>CPF, CNPJ, OAB, nome ou nº CNJ</strong>; devolve "partes, polos, classes, assuntos, tribunal e status"; monitoramento com webhook; monitora DJEN.</td>
+<td>Declara todos os tribunais (TJSP/TRT-2/TRF-3 incl.) · PF e PJ</td>
+<td>Plano API: R$ 0,25/consulta (faixa R$ 1.000/mês, 4.000 transações) até R$ 0,07 (faixa R$ 35.000/mês); Data Lake R$ 1,50/1.000 processos; Plataforma: R$ 500–1.000/mês com consulta a R$ 4,00–3,50</td>
+<td>API + plataforma web + webhooks</td>
+<td>Conta comercial</td>
+<td>Serviço feito para automação</td>
+<td>Política de privacidade própria; declaração LGPD específica não localizada na home → pedir no comercial</td>
+<td><span class="tag tag-v">verificado na página</span></td></tr>
+
+<tr id="F10"><td><span class="tag tag-id">F10</span></td>
+<td><strong>Escavador — API</strong><br><a href="https://api.escavador.com/docs/">api.escavador.com/docs</a><br><small>lido 26/10/2026</small></td>
+<td>API v1/v2: busca de processos por nº CNJ, <strong>nome, CPF/CNPJ do envolvido, OAB</strong>; envolvidos do processo; monitoramento de novos processos e de movimentações; diários oficiais (v1); resumos por IA.</td>
+<td>Lista de tribunais via endpoint próprio (não confirmada nesta leitura) · PF e PJ</td>
+<td>Cobrança por requisição em créditos (header <code>Creditos-Utilizados</code>); <strong>tabela de valores não pública</strong> (página de preços exige conta)</td>
+<td>API REST, token Bearer</td>
+<td>Conta comercial</td>
+<td>Serviço feito para automação; rate limit por conta</td>
+<td>Declaração LGPD não localizada nos docs → pedir no comercial</td>
+<td><span class="tag tag-v">verificado na página</span> <span class="tag tag-x">preço não público</span></td></tr>
+
+<tr id="F11"><td><span class="tag tag-id">F11</span></td>
+<td><strong>Jusbrasil Soluções (ex-Digesto)</strong><br><a href="https://solucoes.jusbrasil.com.br/">solucoes.jusbrasil.com.br</a><br><small>tentado 26/10/2026</small></td>
+<td>Dados jurídicos B2B; o site da Digesto exibe "Digesto agora é Jusbrasil Soluções". Detalhes de produto e preço: <strong>não acessíveis</strong> — a página fica atrás de verificação anti-robô (não contornada, por regra desta pesquisa).</td>
+<td>não verificado</td>
+<td>não público</td>
+<td>não verificado</td>
+<td>Verificação anti-robô no site</td>
+<td>não verificado</td>
+<td>não verificado</td>
+<td><span class="tag tag-x">não verificado</span></td></tr>
+
+<tr id="F12"><td><span class="tag tag-id">F12</span></td>
+<td><strong>Codilo</strong><br><a href="https://www.codilo.com.br/">codilo.com.br</a></td>
+<td>Candidato a provedor; <strong>site fora do ar em 26/10/2026</strong> (página de manutenção do host).</td>
+<td>—</td><td>—</td><td>—</td><td>—</td><td>—</td><td>—</td>
+<td><span class="tag tag-x">não verificado</span></td></tr>
+
+<tr id="F13"><td><span class="tag tag-id">F13</span></td>
+<td><strong>Receita Federal — dados abertos do CNPJ</strong><br><a href="https://dados.gov.br/dados/conjuntos-dados/cadastro-nacional-da-pessoa-juridica---cnpj">dados.gov.br (conjunto CNPJ)</a><br><small>estrutura via fontes secundárias, 26/10/2026</small></td>
+<td>Base completa baixável: empresas, estabelecimentos (situação, CNAE, endereço, data de abertura), <strong>sócios/QSA</strong> (nome, qualificação, faixa etária), Simples/MEI, capital social e porte. Atualização mensal. CPF do sócio: esperado mascarado — <strong>confirmar no leiaute oficial</strong>.</td>
+<td>Nacional · PJ (e PF como sócio)</td>
+<td>Grátis</td>
+<td><strong>Download em lote</strong> (arquivos mensais); páginas oficiais são apps JS — não li o leiaute nesta sessão</td>
+<td>Não</td>
+<td>Dado aberto (reuso livre)</td>
+<td>Dados cadastrais públicos; cruzamentos por sócio → <a href="#L5">L5</a></td>
+<td><span class="tag tag-d">somente docs</span></td></tr>
+
+<tr id="F14"><td><span class="tag tag-id">F14</span></td>
+<td><strong>Receita — consulta CNPJ/QSA na web</strong><br><a href="https://solucoes.receita.fazenda.gov.br/servicos/cnpjreva/cnpjreva_solicitacao.asp">cnpjreva (cartão CNPJ)</a></td>
+<td>Cartão CNPJ individual com QSA, grátis, caso a caso (com captcha). Alternativa manual ao F13 para conferência pontual.</td>
+<td>Nacional · PJ</td>
+<td>Grátis</td>
+<td>Manual</td>
+<td>Captcha</td>
+<td>Sem canal de automação</td>
+<td>—</td>
+<td><span class="tag tag-d">somente docs</span></td></tr>
+
+<tr id="F15"><td><span class="tag tag-id">F15</span></td>
+<td><strong>JUCESP online</strong><br><a href="https://www.jucesponline.sp.gov.br/">jucesponline.sp.gov.br</a><br><small>lido 26/10/2026</small></td>
+<td>Pesquisa simples/avançada (grátis); <strong>ficha cadastral completa desde 1992</strong> (grátis, com senha "NF-P"); cópias digitalizadas de atos arquivados; certidões tarifadas — inclusive <strong>"Linha do Tempo do Quadro de Sócios e Administradores – QSA"</strong>, que é exatamente o histórico de entrada/saída de sócios (sinal B3).</td>
+<td>Estado de SP · PJ</td>
+<td>Consulta grátis; certidões "tarifado" — <strong>valores não exibidos na página</strong></td>
+<td>Manual (web)</td>
+<td>Cadastro/senha p/ ficha completa</td>
+<td>Sem canal de automação público</td>
+<td>Atos societários são públicos por lei de registro</td>
+<td><span class="tag tag-v">verificado na página</span></td></tr>
+
+<tr id="F16"><td><span class="tag tag-id">F16</span></td>
+<td><strong>PGFN — Lista de Devedores / Dívida Aberta + dados abertos</strong><br><a href="https://www.listadevedores.pgfn.gov.br/">listadevedores.pgfn.gov.br</a><br><small>docs/notícias oficiais 2019–2023, lidas 26/10/2026</small></td>
+<td>Devedores inscritos na dívida ativa da União e FGTS, por CPF/CNPJ, com valores; <strong>dados abertos trimestrais em CSV por UF</strong> (devedor principal e corresponsáveis; inclui garantidas/suspensas/parceladas — Portaria PGFN 636/2020). Desde ~2023 recebe também débitos estaduais de SP (acordo PGFN–PGE-SP).</td>
+<td>Nacional · PF e PJ</td>
+<td>Grátis</td>
+<td>Consulta web + <strong>download em lote (CSV)</strong></td>
+<td>Site é app JS; captcha não confirmado</td>
+<td>Dado aberto</td>
+<td>Divulgação prevista em lei (transparência); reuso → <a href="#L5">L5</a></td>
+<td><span class="tag tag-d">somente docs</span></td></tr>
+
+<tr id="F17"><td><span class="tag tag-id">F17</span></td>
+<td><strong>PGE-SP — dívida ativa estadual</strong><br><a href="https://www.dividaativa.pge.sp.gov.br/">dividaativa.pge.sp.gov.br</a><br><small>lido 26/10/2026</small></td>
+<td>"Consulte aqui os débitos inscritos para um CPF ou CNPJ"; certidões via SIDEB; seção Transparência "Dados Dívida Ativa". "Todos os serviços da PGE são gratuitos."</td>
+<td>Estado de SP · PF e PJ</td>
+<td>Grátis</td>
+<td>Manual (web)</td>
+<td>Captcha não confirmado</td>
+<td>Sem canal de automação público</td>
+<td>—</td>
+<td><span class="tag tag-v">verificado na página</span></td></tr>
+
+<tr id="F18"><td><span class="tag tag-id">F18</span></td>
+<td><strong>CENPROT / Pesquisa de Protesto (SP: CERTPROT)</strong><br><a href="https://site.cenprotnacional.org.br/">cenprotnacional.org.br</a> · <a href="https://www.protestosp.com.br/">protestosp.com.br</a><br><small>regra via Prov. CNJ 86/87/2019 e 149/2023, lida 26/10/2026</small></td>
+<td>Consulta <strong>gratuita</strong> obrigatória por lei: existe protesto? em qual cartório? qual valor? (Prov. CNJ 149/2023, art. 259). Certidão oficial é paga, pedida ao cartório; em SP o CERTPROT centraliza pedidos de todas as comarcas.</td>
+<td>Nacional (central) · PF e PJ</td>
+<td>Consulta grátis; certidão por emolumentos — <strong>valor não verificado</strong></td>
+<td>Manual (web/app)</td>
+<td>Cadastro pode ser exigido no portal</td>
+<td>Sem canal de automação público</td>
+<td>Protesto é registro público</td>
+<td><span class="tag tag-d">somente docs</span></td></tr>
+
+<tr id="F19"><td><span class="tag tag-id">F19</span></td>
+<td><strong>CNDT / BNDT (TST)</strong><br><a href="https://cndt-certidao.tst.jus.br/">cndt-certidao.tst.jus.br</a><br><small>lido 26/10/2026</small></td>
+<td>Certidão de débitos trabalhistas por CPF/CNPJ (Lei 12.440/2011; Ato CGJT 1/2022). Certidão positiva = devedor inadimplente em execução trabalhista (consta do BNDT) → dívida concorrente com superprioridade.</td>
+<td>Nacional (JT) · PF e PJ</td>
+<td>Grátis (por lei)</td>
+<td>Manual (web)</td>
+<td>Captcha não confirmado</td>
+<td>Sem canal de automação público</td>
+<td>—</td>
+<td><span class="tag tag-v">verificado na página</span></td></tr>
+
+<tr id="F20"><td><span class="tag tag-id">F20</span></td>
+<td><strong>ONR — SAEC / RI Digital</strong><br><a href="https://registradores.onr.org.br/">registradores.onr.org.br</a> (→ ridigital.org.br)<br><small>lido 26/10/2026</small></td>
+<td>O balcão eletrônico oficial dos cartórios de imóveis: <strong>"Pesquisa Qualificada"</strong> ("busca detalhada de imóveis registrados em um CPF ou CNPJ"), <strong>Pesquisa Nacional de Bens</strong> ("em todo território nacional"), <strong>Certidão Digital</strong> de matrícula (30 dias de validade), <strong>Visualização de Matrícula</strong> ("tal como arquivada no Cartório" — com histórico de donos e ônus) e <strong>Monitor Registral</strong> (alerta de alteração na matrícula).</td>
+<td>Nacional · PF e PJ</td>
+<td>Pago por serviço (emolumentos; "sem taxas extras"); <strong>tabela de valores não lida</strong> (página "Consultar Valores" exige navegação logada)</td>
+<td>Manual (web, com cadastro e créditos)</td>
+<td>Cadastro/login</td>
+<td>Sem canal de automação público</td>
+<td>Matrícula é registro público; pesquisa por CPF de <strong>terceiros não devedores é vedada pela regra desta operação</strong> (seção 7)</td>
+<td><span class="tag tag-v">verificado na página</span> <span class="tag tag-x">preço não verificado</span></td></tr>
+
+<tr id="F21"><td><span class="tag tag-id">F21</span></td>
+<td><strong>GeoSampa — IPTU dados abertos (Prefeitura de SP)</strong><br><a href="https://geosampa.prefeitura.sp.gov.br/">geosampa.prefeitura.sp.gov.br</a><br><small>metadados lidos 26/10/2026</small></td>
+<td>Cadastro imobiliário fiscal (TPCL): CSV anual baixável "desde 1995", camada LOTE → cadastro → IPTU; publicação aberta regida pelo Decreto municipal 56.701/2015, acesso "semRestricoes". Em 2016 a base publicada incluía <strong>nome do contribuinte, endereço, áreas e código SQL</strong>; presença atual do nome e do <strong>valor venal</strong>: <strong>confirmar no dicionário de dados</strong> (não listados nos metadados).</td>
+<td>Município de SP · PF e PJ</td>
+<td>Grátis</td>
+<td><strong>Download em lote (CSV)</strong> + WFS/WMS</td>
+<td>Não</td>
+<td>Dado aberto (licença livre)</td>
+<td>⚠ Base com nomes + patrimônio de PF; uso num score → <a href="#L9">L9</a></td>
+<td><span class="tag tag-d">somente docs</span></td></tr>
+
+<tr id="F22"><td><span class="tag tag-id">F22</span></td>
+<td><strong>Portal da Transparência (federal)</strong><br><a href="https://www.portaldatransparencia.gov.br/api-de-dados">portaldatransparencia.gov.br/api-de-dados</a><br><small>via docs de terceiros, 26/10/2026</small></td>
+<td>Contratos e pagamentos do governo federal a empresas (recebíveis penhoráveis) e remuneração de servidores públicos (renda pública por lei). API gratuita em <code>api.portaldatransparencia.gov.br</code> — <strong>exige cadastro de chave</strong> (não feito nesta pesquisa).</td>
+<td>Federal · PJ (contratos) e PF (servidores)</td>
+<td>Grátis</td>
+<td>API (com chave) + web</td>
+<td>Cadastro p/ API</td>
+<td>API oficial p/ automação</td>
+<td>Remuneração de servidor: divulgação já validada pelo STF (confirmar alcance com advogado → <a href="#L9">L9</a>)</td>
+<td><span class="tag tag-d">somente docs</span></td></tr>
+
+<tr id="F23"><td><span class="tag tag-id">F23</span></td>
+<td><strong>Transparência SP — estado e capital</strong><br><a href="https://www.transparencia.sp.gov.br/">transparencia.sp.gov.br</a> · <a href="https://transparencia.prefeitura.sp.gov.br/">transparencia.prefeitura.sp.gov.br</a></td>
+<td>Contratos e fornecedores do estado e do município — recebíveis públicos de empresas devedoras. Campos e formatos: <strong>não lidos nesta sessão</strong>.</td>
+<td>SP estado + capital · PJ</td>
+<td>Grátis</td>
+<td>Web/downloads</td>
+<td>não verificado</td>
+<td>não verificado</td>
+<td>—</td>
+<td><span class="tag tag-x">não verificado</span></td></tr>
+
+<tr id="F24"><td><span class="tag tag-id">F24</span></td>
+<td><strong>Leilões judiciais / regras de consulta</strong><br><small>Res. CNJ 236/2016 (via <a href="https://www.tjes.jus.br/corregedoria/?p=4164">cópia TJES</a>); Res. CNJ 121/2010 (via <a href="https://www.tjes.jus.br/corregedoria/2016/10/11/resolucao-cnj-no-121-de-05102010/">cópia TJES</a>), lidas 26/10/2026</small></td>
+<td>(a) Leilões eletrônicos por leiloeiros credenciados no tribunal (Res. 236/2016) — bens que <em>outros</em> credores já acharam; portal consolidado do TJSP: não localizado nesta pesquisa. (b) Res. 121/2010: dados básicos do processo (nº, classe, <strong>nomes das partes e advogados</strong>, movimentação, decisões) são de livre acesso, e a consulta pública deve permitir busca por nome/CPF/OAB — base normativa do mapa.</td>
+<td>Nacional</td>
+<td>Grátis</td>
+<td>Web (portais de leiloeiros)</td>
+<td>—</td>
+<td>—</td>
+<td>Textos lidos em cópias de tribunais — conferir versão consolidada em atos.cnj.jus.br</td>
+<td><span class="tag tag-d">somente docs</span></td></tr>
+</tbody>
+</table>
+</div>
+
+<div class="box" id="F-combo">
+<p class="sans" style="margin:0"><strong>A melhor combinação:</strong> <a href="#F1">F1 DataJud</a> (grátis) acha e acompanha <em>todas</em> as execuções da capital por código, sem nomes; <a href="#F6">F6 DJE-TJSP</a> (grátis, download diário oficial) + <a href="#F5">F5 DJEN</a> ligam número do processo a nomes de partes de forma legal e em lote; <a href="#F13">F13 CNPJ aberto</a> + <a href="#F21">F21 IPTU</a> + <a href="#F16">F16 PGFN</a> + <a href="#F17">F17 PGE-SP</a> + <a href="#F18">F18 protestos</a> + <a href="#F19">F19 CNDT</a> montam o retrato de capacidade de pagamento quase a custo zero; <a href="#F20">F20 ONR</a> entra pago, só nos casos finalistas (matrícula com histórico); e <a href="#F9">F9 Judit</a> (ou F10 Escavador) é o atalho comercial que substitui DJE+DJEN quando valer o preço — e a saída limpa se o termo não comercial do DataJud (L7) travar.</p>
+</div>
+
+<!-- ============================================================ 3 -->
+<h2 id="sec-3">3 · Como montar o mapa (M1…M3)</h2>
+
+<h3 id="M1"><span class="tag tag-id">M1</span> TJSP cível — a espinha dorsal</h3>
+<div class="box sans">
+<ul>
+<li><strong>Descoberta:</strong> DataJud <code>api_publica_tjsp</code>, filtro <code>classe.codigo ∈ {12154, 156}</code> + <code>orgaoJulgador.codigoMunicipioIBGE = 3550308</code> + <code>grau = G1</code>; paginação <code>search_after</code> (10.000 por página). <strong>Volume medido: 168.997 processos</strong> (contagem exata, 26/10/2026). ⚠ Essa contagem soma as duas classes — a divisão por classe não rodou (ver nota técnica abaixo).</li>
+<li><strong>"Em aberto":</strong> abre com a distribuição (movimento 26) e <strong>fecha</strong> quando aparece movimento 196 (extinção da execução), arquivamento definitivo/baixa (códigos a confirmar no SGT — F8). <strong>Suspenso ≠ fechado:</strong> movimento 276 (execução frustrada, art. 921 III) marca o caso "sem bens localizados" — para o Nick é um <em>alerta</em>, não um descarte automático (pode ser exatamente onde um credor cansado vende barato; mas o score pune).</li>
+<li><strong>Nomes:</strong> baixar o Caderno 3 (1ª instância – Capital) do DJE-TJSP todo dia útil (F6), extrair pares nº-CNJ → partes/advogados por texto; completar com DJEN (F5). O e-SAJ (F2) fica para conferência manual caso a caso — nunca raspado. Alternativa paga: Judit/Escavador por nº CNJ.</li>
+<li><strong>Valor da causa:</strong> não existe no DataJud → vem da capa no e-SAJ (manual) ou do provedor; em lote, só via provedor.</li>
+<li><strong>Atualização:</strong> DJE diário (dias úteis); DataJud re-contagem semanal; patrimônio sob demanda, só nos finalistas.</li>
+<li><strong>Nota técnica (contagens de 26/10/2026, 8 chamadas):</strong> (a) agregações sobre campos de texto (<code>classe.nome</code>, <code>movimentos.nome</code>) falham na API pública ("Fielddata is disabled") — agregar só por <code>*.codigo</code>; (b) a API oscila: respostas 429/504 em 3 das 8 chamadas → o piloto precisa de retry com backoff; (c) <code>dataAjuizamento</code> do TJSP vem corrompida (anos ~2594–2612, deslocamento de ~600 anos, confirmado no histograma que somou os 168.997) → idade do processo = ano embutido no nº CNJ.</li>
+</ul>
+</div>
+
+<h3 id="M2"><span class="tag tag-id">M2</span> TRT-2 — execução trabalhista na capital</h3>
+<div class="box sans">
+<ul>
+<li><strong>Descoberta:</strong> DataJud <code>api_publica_trt2</code> + município 3550308. Na JT a fase de execução costuma correr <em>dentro</em> da reclamação (classe ATOrd/ATSum) — a seleção não pode ser só por classe: usar movimentos de início de execução/cumprimento + classes próprias de execução. <strong>Primeiro passo do piloto: agregação por <code>classe.codigo</code> no TRT-2 capital (não rodado — chamada devolveu 429).</strong></li>
+<li><strong>Nomes:</strong> a consulta pública do TRT-2 só aceita nº do processo (F3) — os nomes vêm do <strong>DJEN</strong> (F5, que publica a JT desde 08/2024) ou de provedor (F9/F10). No padrão JT os nomes podem sair abreviados ao público — testar no piloto.</li>
+<li><strong>Em aberto / suspenso:</strong> mesmos movimentos TPU (196, 276 etc. — F8).</li>
+<li><strong>Cuidado jurídico:</strong> cessão de crédito trabalhista é terreno controverso (natureza alimentar) → <a href="#L2">L2</a> decide se esse braço existe.</li>
+</ul>
+</div>
+
+<h3 id="M3"><span class="tag tag-id">M3</span> TRF-3 — só credor privado</h3>
+<div class="box sans">
+<ul>
+<li><strong>Descoberta:</strong> DataJud <code>api_publica_trf3</code> + município 3550308, classes 12154/156. <strong>Não rodado</strong> (a chamada de classes falhou; o site do TRF-3 estava inacessível).</li>
+<li><strong>Separar credor privado:</strong> a classe 1116 (execução fiscal) já exclui o grosso do crédito público, mas 12154/156 federais ainda incluem credores como bancos públicos e conselhos — como o DataJud não dá partes, a triagem "credor privado?" só se resolve com os nomes (DJEN/provedor). <strong>Hipótese a testar no piloto: a fatia federal comprável é pequena.</strong> Se a agregação confirmar que quase tudo é fiscal/público, este braço sai do mapa (pergunta <a href="#Q4">Q4</a>).</li>
+</ul>
+</div>
+
+<!-- ============================================================ 4 -->
+<h2 id="sec-4">4 · Filtros e score (S1…S20)</h2>
+<p class="legend">Custo por caso: "grátis" = fonte pública sem cobrança; "pago" = o valor está na linha da fonte (F#). Onde o preço não é público, está marcado.</p>
+<div class="tablewrap">
+<table>
+<thead><tr><th>id</th><th>Filtro</th><th>O que mede</th><th>Fonte</th><th>Campo / como</th><th>PF/PJ</th><th>Custo por caso</th></tr></thead>
+<tbody>
+<tr><td colspan="7" style="background:var(--accent-soft)"><strong>Grupo A — dados do próprio processo</strong></td></tr>
+<tr id="S1"><td><span class="tag tag-id">S1</span></td><td>Valor da execução</td><td>Tamanho do crédito (corte mínimo — Q3)</td><td><a href="#F2">F2</a> / <a href="#F9">F9</a></td><td>Capa do processo (e-SAJ manual) ou campo do provedor; <strong>não existe no DataJud</strong></td><td>ambos</td><td>grátis (manual) / R$ 0,25–4,00 (F9)</td></tr>
+<tr id="S2"><td><span class="tag tag-id">S2</span></td><td>Idade do processo</td><td>Tempo correndo (muito novo = credor ainda não cansou; muito velho = risco de prescrição)</td><td><a href="#F1">F1</a></td><td>Ano embutido no nº CNJ (⚠ não usar <code>dataAjuizamento</code> do TJSP — corrompida)</td><td>ambos</td><td>grátis</td></tr>
+<tr id="S3"><td><span class="tag tag-id">S3</span></td><td>Fase / último movimento</td><td>Em que pé está (citado? garantido? parado?)</td><td><a href="#F1">F1</a></td><td><code>movimentos[]</code> por código TPU (F8)</td><td>ambos</td><td>grátis</td></tr>
+<tr id="S4"><td><span class="tag tag-id">S4</span></td><td>Penhora / bloqueio já feito</td><td>Bem já localizado e constrito = caso quente</td><td><a href="#F1">F1</a></td><td>Movimento 11382 (bloqueio/penhora on-line); código de penhora física a confirmar (F8)</td><td>ambos</td><td>grátis</td></tr>
+<tr id="S5"><td><span class="tag tag-id">S5</span></td><td>Suspenso por falta de bens</td><td>Credor não achou nada (art. 921 III)</td><td><a href="#F1">F1</a></td><td>Movimento 276 (execução frustrada) presente e sem retomada posterior</td><td>ambos</td><td>grátis</td></tr>
+<tr id="S6"><td><span class="tag tag-id">S6</span></td><td>Defesa pendente</td><td>Embargos à execução / impugnação em andamento = demora e risco</td><td><a href="#F2">F2</a>/<a href="#F9">F9</a></td><td>Processos associados / incidentes na capa (códigos de classe a confirmar no SGT)</td><td>ambos</td><td>grátis (manual)</td></tr>
+<tr id="S7"><td><span class="tag tag-id">S7</span></td><td>Risco de prescrição intercorrente</td><td>Execução perto de "morrer de velha" (art. 921 §4º)</td><td><a href="#F1">F1</a></td><td>Movimento 276 há mais de ~1 ano sem movimentação útil; movimento 12259 = já era</td><td>ambos</td><td>grátis</td></tr>
+<tr><td colspan="7" style="background:var(--accent-soft)"><strong>Grupo B — patrimônio do devedor</strong></td></tr>
+<tr id="S8"><td><span class="tag tag-id">S8</span></td><td>Imóveis em cartório</td><td>Imóveis registrados no CPF/CNPJ do devedor (nacional)</td><td><a href="#F20">F20</a></td><td>Pesquisa Qualificada / Pesquisa Nacional de Bens; certidão de matrícula nos finalistas</td><td>ambos</td><td>pago (valor não verificado — emolumentos)</td></tr>
+<tr id="S9"><td><span class="tag tag-id">S9</span></td><td>Imóvel na capital (IPTU)</td><td>Contribuinte de IPTU na cidade (triagem barata antes do F20)</td><td><a href="#F21">F21</a></td><td>CSV do cadastro IPTU: nome do contribuinte + SQL (campos a confirmar no dicionário)</td><td>ambos</td><td>grátis</td></tr>
+<tr id="S10"><td><span class="tag tag-id">S10</span></td><td>Participações societárias</td><td>Devedor PF é sócio de quais empresas; devedor PJ tem quais sócios</td><td><a href="#F13">F13</a></td><td>Arquivo Sócios (QSA) cruzado por nome/CPF-mascarado</td><td>ambos</td><td>grátis</td></tr>
+<tr id="S11"><td><span class="tag tag-id">S11</span></td><td>Saúde cadastral da empresa</td><td>Ativa? capital social? porte? CNAE? idade?</td><td><a href="#F13">F13</a>/<a href="#F14">F14</a></td><td>Arquivos Empresas/Estabelecimentos</td><td>PJ</td><td>grátis</td></tr>
+<tr id="S12"><td><span class="tag tag-id">S12</span></td><td>Recebíveis públicos</td><td>Empresa que o governo paga tem recebíveis penhoráveis</td><td><a href="#F22">F22</a>/<a href="#F23">F23</a></td><td>Contratos e pagamentos por CNPJ</td><td>PJ</td><td>grátis</td></tr>
+<tr id="S13"><td><span class="tag tag-id">S13</span></td><td>Renda pública por lei</td><td>Devedor PF servidor público (salário publicado)</td><td><a href="#F22">F22</a></td><td>Consulta de remuneração por nome — ⚠ usar só após <a href="#L9">L9</a>; salário é em regra impenhorável (confirmar exceções com advogado)</td><td>PF</td><td>grátis</td></tr>
+<tr><td colspan="7" style="background:var(--accent-soft)"><strong>Grupo C — dívidas concorrentes</strong></td></tr>
+<tr id="S14"><td><span class="tag tag-id">S14</span></td><td>Dívida ativa federal</td><td>União/FGTS na fila pelos mesmos bens</td><td><a href="#F16">F16</a></td><td>CSV trimestral + consulta por CPF/CNPJ</td><td>ambos</td><td>grátis</td></tr>
+<tr id="S15"><td><span class="tag tag-id">S15</span></td><td>Dívida ativa estadual SP</td><td>Estado na fila</td><td><a href="#F17">F17</a></td><td>Consulta de débitos por CPF/CNPJ</td><td>ambos</td><td>grátis</td></tr>
+<tr id="S16"><td><span class="tag tag-id">S16</span></td><td>Protestos</td><td>Outras dívidas não pagas (quantas, onde, quanto)</td><td><a href="#F18">F18</a></td><td>Consulta gratuita CENPROT; certidão nos finalistas</td><td>ambos</td><td>grátis / certidão paga</td></tr>
+<tr id="S17"><td><span class="tag tag-id">S17</span></td><td>Dívida trabalhista</td><td>Inadimplente em execução trabalhista (BNDT) — credor com preferência</td><td><a href="#F19">F19</a></td><td>CNDT positiva/negativa</td><td>ambos</td><td>grátis</td></tr>
+<tr id="S18"><td><span class="tag tag-id">S18</span></td><td>Outras execuções contra o devedor</td><td>Concorrência de credores privados</td><td><a href="#F9">F9</a>/<a href="#F10">F10</a></td><td>Busca por CPF/CNPJ no polo passivo (provedor)</td><td>ambos</td><td>R$ 0,25–4,00 (F9; Escavador não público)</td></tr>
+<tr id="S19"><td><span class="tag tag-id">S19</span></td><td>RJ / falência <strong>(gate)</strong></td><td>Devedor em recuperação/falência → caso sai do funil (o crédito cai no plano)</td><td><a href="#F2">F2</a>/<a href="#F15">F15</a></td><td>Classes de RJ/falência no TJSP por nome (manual) + situação na JUCESP (códigos TPU a confirmar)</td><td>PJ</td><td>grátis (manual)</td></tr>
+<tr><td colspan="7" style="background:var(--accent-soft)"><strong>Grupo D — blindagem</strong></td></tr>
+<tr id="S20"><td><span class="tag tag-id">S20</span></td><td>Sinais de blindagem</td><td>Agregado dos sinais B1–B5 (seção 5)</td><td><a href="#sec-5">B1–B5</a></td><td>—</td><td>ambos</td><td>misto</td></tr>
+</tbody>
+</table>
+</div>
+
+<div class="box">
+<h3 style="margin-top:0">O score, em palavras</h3>
+<p class="sans">Nota de 0 a 100, soma ponderada de quatro blocos: <strong>capacidade de pagar</strong> (até 40 pontos — imóveis, empresa ativa com capital e recebíveis, participações), <strong>concorrência pelos mesmos bens</strong> (até 25 — quanto mais dívida ativa, protesto, CNDT positiva e outras execuções, menos pontos), <strong>qualidade do processo</strong> (até 20 — valor dentro do corte, idade média, penhora já feita soma, suspensão por falta de bens e defesa pendente subtraem), e <strong>blindagem</strong> (até 15 — cada sinal B# subtrai; mas B2, a averbação premonitória já feita, <em>soma</em>, porque o imóvel está "carimbado"). O gate S19 (RJ/falência) zera o caso antes do score. Os pesos são ponto de partida — o piloto calibra.</p>
+<p class="sans" style="margin-bottom:0"><strong>A conta de retorno</strong> (mesmos números fictícios da seção 1): pagando 10–20% e recuperando 40–50% por acordo, a margem bruta é de 20 a 40 pontos percentuais do valor de face; dela saem honorários de êxito, custos de fonte (hoje: R$ 0 a ~R$ 4 por consulta + certidões) e 1–3 anos de espera. O modelo só fecha se a taxa de acerto (casos que pagam ÷ casos comprados) compensar os que não pagam — por isso o score existe e por isso o piloto (seção 10) mede taxa de acerto antes de qualquer escala.</p>
+</div>
+
+<!-- ============================================================ 5 -->
+<h2 id="sec-5">5 · Sinais de blindagem (B1…B5)</h2>
+<p class="sans muted">Todos lidos <strong>apenas nos registros do próprio devedor</strong>. Terceiros (parentes, amigos, sócios) aparecem só como contraparte ou coproprietário nesses registros — nunca são pesquisados por si (seção 7). Cada enquadramento jurídico: confirmar com advogado.</p>
+<div class="tablewrap">
+<table>
+<thead><tr><th>id</th><th>Sinal</th><th>Como é detectado</th><th>Fonte</th><th>Ferramenta jurídica que ele aciona</th></tr></thead>
+<tbody>
+<tr id="B1"><td><span class="tag tag-id">B1</span></td><td>Imóvel saiu do nome do devedor <strong>depois</strong> da data da ação</td><td>Histórico da matrícula (certidão): registro de venda/doação com data posterior ao ajuizamento; comprador = contraparte no registro do devedor</td><td><a href="#F20">F20</a></td><td>Fraude à execução (CPC art. 792) — a transferência pode ser declarada ineficaz</td></tr>
+<tr id="B2"><td><span class="tag tag-id">B2</span></td><td>Averbação premonitória já na matrícula</td><td>Averbação da execução (CPC art. 828) visível na certidão — sinal <em>positivo</em>: credor diligente, imóvel carimbado</td><td><a href="#F20">F20</a></td><td>Presunção de fraude em alienação posterior (art. 828 §4º)</td></tr>
+<tr id="B3"><td><span class="tag tag-id">B3</span></td><td>Sócio saiu / quotas transferidas <strong>depois</strong> da ação</td><td>Linha do tempo do QSA (certidão JUCESP) ou diffs mensais do arquivo Sócios da Receita</td><td><a href="#F15">F15</a> / <a href="#F13">F13</a></td><td>Desconsideração da personalidade jurídica (CPC art. 133); fraude contra credores</td></tr>
+<tr id="B4"><td><span class="tag tag-id">B4</span></td><td>Empresa nova dos mesmos sócios após a ação, mesmo endereço ou mesmo CNAE</td><td>Cruzamento no CNPJ aberto: sócios do devedor × empresas abertas depois do ajuizamento</td><td><a href="#F13">F13</a></td><td>Sucessão empresarial / grupo econômico / desconsideração (art. 133)</td></tr>
+<tr id="B5"><td><span class="tag tag-id">B5</span></td><td>Bens migraram para holding</td><td>Matrícula mostra transferência do imóvel para PJ cujo QSA contém o próprio devedor (a PJ aparece como contraparte no registro do devedor)</td><td><a href="#F20">F20</a> + <a href="#F13">F13</a></td><td>Desconsideração inversa — confirmar hipóteses com advogado</td></tr>
+</tbody>
+</table>
+</div>
+
+<!-- ============================================================ 6 -->
+<h2 id="sec-6">6 · Depois da compra (D1…D7)</h2>
+<p class="sans muted">Ferramentas que só existem <strong>dentro do processo</strong>, pedidas pelo advogado do novo credor ao juiz. É aqui que o "dinheiro escondido" aparece de verdade — o mapa apenas prevê onde vale a pena pedir. Prazos são ordem de grandeza, variam por vara.</p>
+<div class="tablewrap">
+<table>
+<thead><tr><th>id</th><th>Ferramenta</th><th>O que encontra / faz</th><th>Quem pede</th><th>Tempo típico</th></tr></thead>
+<tbody>
+<tr id="D1"><td><span class="tag tag-id">D1</span></td><td><strong>SISBAJUD</strong> <small>(<a href="https://www.cnj.jus.br/sistemas/sisbajud/">CNJ</a>, lido 26/10/2026)</small></td><td>Bloqueio, desbloqueio e transferência de ativos financeiros (contas, aplicações) via Banco Central; sucessor do BacenJud, com "teimosinha" (reiteração automática)</td><td>Advogado requer; juiz ordena</td><td>Dias a poucas semanas</td></tr>
+<tr id="D2"><td><span class="tag tag-id">D2</span></td><td><strong>RENAJUD</strong> <small>(<a href="https://www.cnj.jus.br/sistemas/renajud/">CNJ</a>, lido 26/10/2026)</small></td><td>Consulta e restrição de veículos (inclusive registro de penhora) direto na base RENAVAM/DENATRAN, em tempo real</td><td>Advogado requer; juiz executa</td><td>Imediato após deferido</td></tr>
+<tr id="D3"><td><span class="tag tag-id">D3</span></td><td><strong>INFOJUD</strong> <small>(<a href="https://www.cnj.jus.br/sistemas/infojud/">CNJ</a>, lido 26/10/2026)</small></td><td>Declarações e informações fiscais do devedor na Receita Federal (sigilo fiscal afastado pelo juiz)</td><td>Advogado requer; juiz acessa</td><td>Dias a semanas</td></tr>
+<tr id="D4"><td><span class="tag tag-id">D4</span></td><td><strong>SNIPER</strong> <small>(<a href="https://www.cnj.jus.br/sniper/">CNJ</a>, lido 26/10/2026)</small></td><td>Investigação patrimonial integrada (Renajud + Sisbajud + Anacjud + Receitajud + registros cartoriais) numa interface única; identifica e bloqueia bens, inclusive imóveis</td><td>Magistrados e servidores (advogado requer)</td><td>Semanas</td></tr>
+<tr id="D5"><td><span class="tag tag-id">D5</span></td><td><strong>CNIB</strong> <small>(Prov. CNJ 39/2014; uso em execução civil entre particulares admitido pelo STJ em 2025 — confirmar)</small></td><td>Ordem de indisponibilidade de bens imóveis em todos os cartórios do país de uma vez</td><td>Advogado requer; juiz lança</td><td>Dias</td></tr>
+<tr id="D6"><td><span class="tag tag-id">D6</span></td><td><strong>Averbação premonitória</strong> <small>(CPC art. 828 — confirmar)</small></td><td>Carimba a existência da execução nas matrículas dos imóveis do devedor; venda posterior presume fraude</td><td>Advogado, com certidão do juízo</td><td>Dias</td></tr>
+<tr id="D7"><td><span class="tag tag-id">D7</span></td><td><strong>Penhora de recebíveis / faturamento</strong> <small>(confirmar hipóteses com advogado)</small></td><td>Penhora de créditos que o devedor tem a receber (ex.: contratos públicos achados em S12) ou de percentual do faturamento</td><td>Advogado requer; juiz defere</td><td>Semanas a meses</td></tr>
+</tbody>
+</table>
+</div>
+
+<!-- ============================================================ 7 -->
+<h2 id="sec-7">7 · Limites</h2>
+<div class="box">
+<ul class="sans">
+<li><strong>O que o mapa não vê, por desenho:</strong> contas bancárias e aplicações (só D1), <strong>veículos — não existe fonte pública</strong>: dados do DETRAN não são públicos e o RENAJUD é só do juízo (D2), bens no exterior, dinheiro em espécie, criptomoedas.</li>
+<li><strong>Fronteira de terceiros:</strong> parentes, amigos e sócios aparecem <em>somente</em> como contraparte ou coproprietário nos registros do próprio devedor (matrícula, QSA). Nenhuma fonte, campo, filtro ou score perfila o patrimônio ou a renda de um terceiro por si. Ideias que exigiriam isso (ex.: "pesquisar imóveis no CPF do cônjuge/filhos", "score da família") ficaram <strong>de fora</strong>: quem não deve não pode virar alvo — sem base na LGPD e com risco de cobrança abusiva.</li>
+<li><strong>Fontes encontradas e rejeitadas:</strong> "painéis de consulta" e bases vazadas que vendem CPF/CNPJ completos (encontrados em qualquer busca por "consulta CPF") — <strong>não usar</strong>: origem ilegal dos dados, crime/LGPD. Nenhum foi aberto nesta pesquisa. Raspagem do e-SAJ — rejeitada: o TJSP bloqueia e não há canal autorizado (F2).</li>
+<li><strong>Limitações de fonte constatadas:</strong> DataJud sem partes e sem valor da causa; termo de uso do DataJud não comercial (L7); datas de ajuizamento corrompidas no índice TJSP; API pública instável (429/504); TRF-3 e Planalto (texto do CPC) inacessíveis desta rede na data; Jusbrasil atrás de verificação anti-robô; Codilo fora do ar; preços de Escavador, JUCESP e ONR não públicos.</li>
+<li><strong>Contagens:</strong> das planejadas, só a TJSP rodou (168.997). TRT-2, TRF-3 e "suspensos por falta de bens": <strong>não rodado</strong> (8 de 20 chamadas usadas; interrompido a pedido do Nick).</li>
+<li><strong>Nenhuma conclusão jurídica deste documento é parecer.</strong> Tudo que tem artigo de lei está marcado "confirmar com advogado" — inclusive porque o texto do CPC no Planalto não pôde ser conferido nesta sessão.</li>
+</ul>
+</div>
+
+<!-- ============================================================ 8 -->
+<h2 id="sec-8">8 · Perguntas para advogado (L1…L10)</h2>
+<ol class="sans">
+<li id="L1"><strong>L1 — Cessão do crédito em execução:</strong> qual o rito para o cessionário assumir a execução cível (CPC art. 778 §1º III)? Precisa de anuência do devedor ou só notificação (CC arts. 286–298)? Que cláusulas o contrato de cessão precisa ter para proteger o Nick (vícios do título, embargos futuros)?</li>
+<li id="L2"><strong>L2 — Crédito trabalhista:</strong> a cessão de crédito trabalhista a terceiro não advogado é válida e eficaz perante o juízo (natureza alimentar, jurisprudência do TST)? Sob quais condições? Se for inviável, o braço TRT-2 do mapa sai.</li>
+<li id="L3"><strong>L3 — Justiça Federal:</strong> particularidades da cessão quando a execução corre no TRF-3 (credor privado contra devedor privado)? Como tratar casos com banco público no polo ativo?</li>
+<li id="L4"><strong>L4 — Notificação do devedor:</strong> quando e como o devedor deve ser notificado da cessão (CC art. 290), e o que acontece se pagar o credor antigo antes?</li>
+<li id="L5"><strong>L5 — LGPD do banco de dados:</strong> qual a base legal para manter uma base com nomes, CPF/CNPJ, processos e patrimônio de devedores (legítimo interesse? exercício regular de direitos?), por quanto tempo reter, e que direitos do titular (acesso, eliminação) precisam de processo interno?</li>
+<li id="L6"><strong>L6 — Contato para acordo:</strong> quais os limites para procurar o devedor e propor acordo (horários, meios, frequência, proibição de constrangimento; CDC se aplica?)? O que configura cobrança abusiva?</li>
+<li id="L7"><strong>L7 — Termo de uso do DataJud:</strong> o termo restringe a API a "fins legais, não comerciais e autorizados" e proíbe "explorar comercialmente… qualquer informação derivada". Usar o DataJud para originar negócios viola o termo? Alternativas: diários oficiais (públicos) e provedores comerciais licenciados cobrem o mesmo papel?</li>
+<li id="L8"><strong>L8 — Coleta nos sites dos tribunais:</strong> até onde vai o uso legítimo das consultas públicas (Res. CNJ 121/2010) para montar base própria, dado que o TJSP veda robôs? Download diário do DJE é incontroverso?</li>
+<li id="L9"><strong>L9 — Fontes abertas com nome de PF:</strong> posso usar a base aberta do IPTU (nome do contribuinte) e a remuneração de servidores num score interno de capacidade de pagamento? Quais cautelas (finalidade, minimização, não divulgação)?</li>
+<li id="L10"><strong>L10 — Bureaus de crédito:</strong> consultar Serasa/SPC/Quod sobre o devedor (PF) exige qual base/consentimento? Faz diferença ser PJ? Vale a pena contratualmente?</li>
+</ol>
+
+<!-- ============================================================ 9 -->
+<h2 id="sec-9">9 · Perguntas para o Nick (Q1…Q6)</h2>
+<ol class="sans">
+<li id="Q1"><strong>Q1 — Qual provedor pago testar primeiro?</strong> Opções: (a) <strong>Judit — recomendado</strong>: preço público (R$ 0,25/consulta na menor faixa, R$ 1.000/mês), busca por CPF/CNPJ/nome, webhooks; (b) Escavador: recursos equivalentes, preço só com conta; (c) nenhum no piloto — só DJE+DJEN grátis (mais trabalho de parsing, custo zero). Recomendação: (a), menor faixa, um mês, ou (c) se o piloto for só TJSP.</li>
+<li id="Q2"><strong>Q2 — Orçamento por caso analisado a fundo?</strong> As fontes grátis cobrem a triagem; o caso finalista custa consultas pagas (provedor + certidão de matrícula + eventual certidão JUCESP/protesto). Faixas para decidir: até R$ 50 · até R$ 150 · até R$ 300 por finalista. Recomendação: até R$ 150, revisto após o piloto.</li>
+<li id="Q3"><strong>Q3 — Valor de face mínimo?</strong> Abaixo de um piso, o custo fixo (advogado + tempo) come a margem. Opções: R$ 20 mil · R$ 50 mil · R$ 100 mil. Recomendação: <strong>R$ 50 mil</strong> no piloto (acordo alvo ≥ R$ 20 mil).</li>
+<li id="Q4"><strong>Q4 — Qual tribunal primeiro?</strong> Opções: (a) <strong>TJSP cível — recomendado</strong> (168.997 casos medidos, fontes maduras, sem a dúvida jurídica do L2); (b) TRT-2 junto (depende de L2); (c) incluir TRF-3 (depende da agregação não rodada). Recomendação: (a) só TJSP no piloto.</li>
+<li id="Q5"><strong>Q5 — Advogado antes do piloto?</strong> O piloto de <em>pesquisa</em> (seção 10) não compra nada, mas L5 (LGPD da base) e L7 (DataJud) condicionam até a pesquisa. Opções: consultar antes · rodar piloto técnico em paralelo às consultas. Recomendação: em paralelo, sem comprar nada até L1–L7 respondidas.</li>
+<li id="Q6"><strong>Q6 — PF, PJ ou ambos no piloto?</strong> PJ tem dados muito mais ricos e grátis (CNPJ, QSA, contratos públicos); PF depende de ONR pago e IPTU. Recomendação: <strong>começar por devedores PJ</strong>, PF na fase 2.</li>
+</ol>
+
+<!-- ============================================================ 10 -->
+<h2 id="sec-10">10 · Próxima task (proposta): piloto de 30 casos</h2>
+<div class="box box--accent sans">
+<ul>
+<li><strong>Escopo:</strong> TJSP, capital, 1º grau, classes 12154 + 156, devedor PJ, valor de face ≥ corte do Q3. Nenhuma compra; só pesquisa e score.</li>
+<li><strong>Passos:</strong> (1) rodar as agregações DataJud que faltaram (divisão por classe, suspensos 276, TRT-2/TRF-3 por classe — ~8 chamadas, com retry/backoff); (2) baixar 10 dias úteis do Caderno 3 do DJE-TJSP e provar a extração nº-processo → partes em lote; (3) escolher 30 casos, levantar os filtros S1–S19 (fontes grátis primeiro; F20/F9 só nos ~10 finalistas); (4) aplicar o score e entregar a lista ordenada com ficha por caso; (5) medir: custo real por caso, tempo por caso, % de casos com devedor localizável e com patrimônio visível.</li>
+<li><strong>O que o piloto prova:</strong> (a) a cadeia DataJud→DJE→patrimônio funciona de ponta a ponta e a que custo; (b) quantos % dos 168.997 sobrevivem aos filtros (taxa de funil); (c) se os nomes do DJEN/TRT-2 saem completos ou abreviados; (d) se a fatia TRF-3 comprável existe.</li>
+<li><strong>Custo estimado do piloto:</strong> fontes grátis + (se Q1 = Judit) R$ 1.000 de uma mensalidade mínima + certidões dos finalistas (valor a confirmar na tabela ONR) — sem honorários, pois nada é comprado.</li>
+<li><strong>Pré-requisitos:</strong> respostas Q1–Q6; L5 e L7 pelo menos encaminhadas.</li>
+</ul>
+</div>
+
+<p class="sans muted" style="margin:40px 0 24px">Pesquisado e escrito em 26/10/2026. Todas as leituras de páginas são de 26/10/2026; preços citam a fonte e a data; "não verificado" = não confirmei; "não rodado" = a consulta não foi executada. Nenhuma pessoa ou empresa real foi pesquisada. Documento offline — sem scripts, fontes ou requisições externas.</p>
+
+</main>
+<script>
+(function(){
+  var btn=document.getElementById('tema');
+  var modes=['auto','light','dark'];
+  var cur=0;
+  try{var saved=localStorage.getItem('tema-execsp');if(saved){cur=modes.indexOf(saved);if(cur<0)cur=0;}}catch(e){}
+  function apply(){
+    var m=modes[cur];
+    if(m==='auto'){document.documentElement.removeAttribute('data-theme');}
+    else{document.documentElement.setAttribute('data-theme',m);}
+    btn.textContent='Tema: '+(m==='auto'?'auto':(m==='light'?'claro':'escuro'));
+    try{localStorage.setItem('tema-execsp',m);}catch(e){}
+  }
+  btn.addEventListener('click',function(){cur=(cur+1)%3;apply();});
+  apply();
+})();
+</script>
+</body>
+</html>
